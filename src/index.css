@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body a{
+    color: #fff;
+}
+body nav a:hover{
+    color: #9333ea;
+    border-bottom: 5px solid #9333ea;
+}
