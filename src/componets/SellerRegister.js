@@ -1,47 +1,166 @@
 import React, { useState } from "react";
+import { apiurl } from "../config/config";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function SellerRegistration() {
   const [formData, setFormData] = useState({
+    email: "",
+    password: "",
     fullName: "",
     businessName: "",
     businessAddress: "",
     phone: "",
-    email: "",
-    nationalIdType: "aadhaar",
-    nationalIdNumber: "",
-    gst: "",
+    identityProof: "aadhaar",
+    identityProofNumber: "",
+    accountHolder: "",
+    gstNumber: "",
     bankAccount: "",
-    addressProof: null,
+    ifscCode: "",
+    addressProof: "",
   });
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [strength, setStrength] = useState("");
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, files } = e.target;
+
+    // If the field is file input (addressProof)
+    if (name === "addressProof" && files && files[0]) {
+      const uploadedUrl = await handleFileUpload(files[0]);
+      if (uploadedUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: uploadedUrl, // store uploaded URL instead of raw file
+        }));
+
+        // Remove error if uploaded successfully
+        setErrors((prevErrors) => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
+      return;
+    }
+
+    // For normal inputs
     setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: value,
     }));
+
+    // Validation + error removal
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+
+      // Remove error if value exists
+      if (value) {
+        delete newErrors[name];
+      }
+
+      // Email validation
+      if (name === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          newErrors.email = "Enter a valid email address";
+        } else {
+          delete newErrors.email;
+        }
+      }
+
+      // Phone validation (10 digits only for India – adjust if needed)
+      if (name === "phone") {
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(value)) {
+          newErrors.phone = "Enter a valid 10-digit phone number";
+        } else {
+          delete newErrors.phone;
+        }
+      }
+
+      return newErrors;
+    });
+  };
+
+  const handleFileUpload = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "lakmesalon");
+    data.append("cloud_name", "dv5del8nh");
+
+    try {
+      let res = await fetch(
+        "https://api.cloudinary.com/v1_1/dv5del8nh/image/upload",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+      let result = await res.json();
+      // console.log("Uploaded Image URL:", result.secure_url);
+      return result.secure_url;
+    } catch (error) {
+      console.error("Upload error:", error);
+      return null;
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    handleChange(e);
+    setStrength(checkStrength(e.target.value));
   };
 
   const validate = () => {
     let newErrors = {};
     if (!formData.fullName) newErrors.fullName = "Full Name is required";
-    if (!formData.businessName) newErrors.businessName = "Business Name is required";
+    if (!formData.businessName)
+      newErrors.businessName = "Business Name is required";
     if (!formData.phone) newErrors.phone = "Phone number is required";
     if (!formData.email) newErrors.email = "Email is required";
-    if (!formData.nationalIdNumber) newErrors.nationalIdNumber = "ID number is required";
-    if (!formData.gst) newErrors.gst = "GSTIN is required";
-    if (!formData.bankAccount) newErrors.bankAccount = "Bank Account is required";
-    if (!formData.addressProof) newErrors.addressProof = "Address Proof image is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.identityProofNumber)
+      newErrors.identityProofNumber = "ID number is required";
+    if (!formData.gstNumber) newErrors.gstNumber = "GSTIN is required";
+    // if (!formData.bankAccount) newErrors.bankAccount = "Bank Account is required";
+    if (!formData.addressProof)
+      newErrors.addressProof = "Address Proof image is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const checkStrength = (password) => {
+    if (!password) return "";
+
+    const conditions = [
+      /.{8,}/, // at least 8 characters
+      /[A-Z]/, // at least one uppercase
+      /[a-z]/, // at least one lowercase
+      /[0-9]/, // at least one number
+      /[^A-Za-z0-9]/, // at least one special character
+    ];
+
+    const passed = conditions.filter((regex) => regex.test(password)).length;
+
+    if (passed <= 2) return "Weak";
+    if (passed === 3 || passed === 4) return "Medium";
+    if (passed === 5) return "Strong";
+    return "";
+  };
+  const handleSubmit = async () => {
     if (validate()) {
-      console.log("Form Data:", formData);
-      alert("Seller registered successfully!");
+      const response = await axios.post(`${apiurl}/seller/register`, formData);
+      // console.log("Form Data:", response.status);
+      if (response.status === 200) {
+        
+        toast.success(response.data.message);
+      } else {
+        toast.warn(response.data.message);
+      }
+      
+    } else {
+      toast.error("Please fill all the mandatory fields");
     }
   };
 
@@ -68,7 +187,9 @@ export default function SellerRegistration() {
               className="w-full p-3 border rounded-lg"
             />
             {errors.fullName && (
-              <p className="text-red-500 text-sm">{errors.fullName}</p>
+              <p className="text-red-500 text-sm text-left">
+                {errors.fullName}
+              </p>
             )}
           </div>
           <div>
@@ -81,7 +202,9 @@ export default function SellerRegistration() {
               className="w-full p-3 border rounded-lg"
             />
             {errors.businessName && (
-              <p className="text-red-500 text-sm">{errors.businessName}</p>
+              <p className="text-red-500 text-sm text-left">
+                {errors.businessName}
+              </p>
             )}
           </div>
         </div>
@@ -106,11 +229,25 @@ export default function SellerRegistration() {
               name="phone"
               placeholder="Phone Number"
               value={formData.phone}
-              onChange={handleChange}
+              onChange={(e) => {
+                // Allow only digits
+                const value = e.target.value.replace(/\D/g, "");
+
+                // Limit to 10 digits
+                if (value.length <= 10) {
+                  handleChange({
+                    target: {
+                      name: "phone",
+                      value,
+                    },
+                  });
+                }
+              }}
               className="w-full p-3 border rounded-lg"
             />
+
             {errors.phone && (
-              <p className="text-red-500 text-sm">{errors.phone}</p>
+              <p className="text-red-500 text-sm text-left">{errors.phone}</p>
             )}
           </div>
           <div>
@@ -123,7 +260,7 @@ export default function SellerRegistration() {
               className="w-full p-3 border rounded-lg"
             />
             {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
+              <p className="text-red-500 text-sm text-left">{errors.email}</p>
             )}
           </div>
         </div>
@@ -132,8 +269,8 @@ export default function SellerRegistration() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <select
-              name="nationalIdType"
-              value={formData.nationalIdType}
+              name="identityProof"
+              value={formData.identityProof}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
             >
@@ -147,14 +284,16 @@ export default function SellerRegistration() {
           <div>
             <input
               type="text"
-              name="nationalIdNumber"
-              placeholder={`Enter ${formData.nationalIdType.toUpperCase()} Number`}
-              value={formData.nationalIdNumber}
+              name="identityProofNumber"
+              placeholder={`Enter ${formData.identityProof.toUpperCase()} Number`}
+              value={formData.identityProofNumber}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
             />
-            {errors.nationalIdNumber && (
-              <p className="text-red-500 text-sm">{errors.nationalIdNumber}</p>
+            {errors.identityProofNumber && (
+              <p className="text-red-500 text-sm text-left">
+                {errors.identityProofNumber}
+              </p>
             )}
           </div>
         </div>
@@ -164,43 +303,114 @@ export default function SellerRegistration() {
           <div>
             <input
               type="text"
-              name="gst"
+              name="gstNumber"
               placeholder="GSTIN"
-              value={formData.gst}
+              value={formData.gstNumber}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
             />
-            {errors.gst && (
-              <p className="text-red-500 text-sm">{errors.gst}</p>
+            {errors.gstNumber && (
+              <p className="text-red-500 text-sm text-left">
+                {errors.gstNumber}
+              </p>
             )}
           </div>
           <div>
             <input
               type="text"
               name="bankAccount"
-              placeholder="Bank Account Number"
+              placeholder="Bank Account Number (Optional)"
               value={formData.bankAccount}
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
             />
-            {errors.bankAccount && (
-              <p className="text-red-500 text-sm">{errors.bankAccount}</p>
-            )}
+            {/* {errors.bankAccount && (
+              <p className="text-red-500 text-sm text-left">{errors.bankAccount}</p>
+            )} */}
           </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <input
+              type="text"
+              name="accountHolder"
+              placeholder="Account Holder (Optional)"
+              value={formData.accountHolder}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg"
+            />
+            {/* {errors.accountHolder && (
+              <p className="text-red-500 text-sm text-left">{errors.accountHolder}</p>
+            )} */}
+          </div>
+          <div>
+            <input
+              type="text"
+              name="ifscCode"
+              placeholder="IFSC Code (Optional)"
+              value={formData.ifscCode}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg"
+            />
+            {/* {errors.ifscCode && (
+              <p className="text-red-500 text-sm text-left">{errors.ifscCode}</p>
+            )} */}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* Address Proof Upload (full row) */}
+          <div className="mb-4">
+            <input
+              type="file"
+              name="addressProof"
+              accept="image/*"
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg"
+            />
+            {errors.addressProof && (
+              <p className="text-red-500 text-sm text-left">
+                {errors.addressProof}
+              </p>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handlePasswordChange}
+              className="w-full p-3 border rounded-lg"
+            />
 
-        {/* Address Proof Upload (full row) */}
-        <div className="mb-4">
-          <input
-            type="file"
-            name="addressProof"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg"
-          />
-          {errors.addressProof && (
-            <p className="text-red-500 text-sm">{errors.addressProof}</p>
-          )}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-5 text-sm text-gray-500"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+
+            {errors.password && (
+              <p className="text-red-500 text-sm text-left">
+                {errors.password}
+              </p>
+            )}
+
+            {formData.password && !errors.password && (
+              <p
+                className={`text-sm mt-1 ${
+                  strength === "Weak"
+                    ? "text-red-500"
+                    : strength === "Medium"
+                    ? "text-yellow-500"
+                    : "text-green-500"
+                }`}
+              >
+                Password Strength: {strength}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Submit */}
@@ -211,6 +421,7 @@ export default function SellerRegistration() {
           Register
         </button>
       </div>
+     
     </div>
   );
 }

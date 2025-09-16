@@ -13,6 +13,7 @@ import Account from "./componets/Account";
 import { ProductDetails } from "./componets/ProductDetails";
 import Confirmation from './componets/Confirmation.jsx';
 import SellerRegister from "./componets/SellerRegister.js";
+import { ToastContainer } from "react-toastify";
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/confirmation" element={<Confirmation />} />
       </Routes>
       <Footer />
+       <ToastContainer position="top-right" autoClose={1000} />
     </Router>
   );
 }
