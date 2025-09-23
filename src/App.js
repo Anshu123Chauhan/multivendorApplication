@@ -40,7 +40,6 @@ function Layout({ children }) {
   );
 }
 
-
 function App() {
   return (
     <Router>
@@ -58,6 +57,7 @@ function App() {
           <Route path="*" element={<PageNotFount />} />
         </Routes>
       </Layout>
+
     </Router>
   );
 }
