@@ -10,6 +10,9 @@ module.exports = {
         current: "#0A192F",
         productBg: "#f1f0fa",
       },
+         fontFamily: {
+        nunito: ["Nunito Sans", "sans-serif"],
+      },
     },
   },
   plugins: [],

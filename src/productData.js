@@ -23,6 +23,9 @@ export default [
     img: pro1,
     quantity: 3,
     category: "Phones",
+    badge: "Best Seller",
+    rating: 4.5,
+    description: "Latest Samsung Galaxy smartphone with advanced features."
   },
   {
     id: 2,
@@ -32,6 +35,9 @@ export default [
     img: "https://res.cloudinary.com/drecbsopp/image/upload/v1627398477/MotoGPowerDual_2021_Reformatted_1_330x_wp8gve.png",
     quantity: 1,
     category: "Phones",
+    badge: "Hot Deal",
+    rating: 4.2,
+    description: "Affordable Moto smartphone with reliable performance."
   },
   {
     id: 3,
@@ -41,15 +47,22 @@ export default [
     img: "https://res.cloudinary.com/drecbsopp/image/upload/v1627398543/D7A7DA95-AEF8-228B-A2D2-A3FEBF237C33_y9p6wq.png",
     quantity: 1,
     category: "Phones",
+    badge: "Trending",
+    rating: 4.0,
+    description: "Xiaomi Redmi budget smartphone with great battery life."
   },
   {
     id: 4,
     title: "Nike Jordan",
-    price: 400.0,
-    lastPrice: 500.0,
-    img: pro3,
+    price: 1299.0,
+    lastPrice: 6990.0,
+    // img: pro3,
+    img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     quantity: 1,
     category: "Clothes",
+    badge: "New Arrival",
+    rating: 4.8,
+    description: "Stylish Nike Jordan shoes for casual wear."
   },
   {
     id: 5,
@@ -59,6 +72,9 @@ export default [
     img: pro2,
     quantity: 1,
     category: "Clothes",
+    badge: "Premium",
+    rating: 4.7,
+    description: "Nike Air Max sneakers with premium comfort."
   },
   {
     id: 6,
@@ -68,6 +84,9 @@ export default [
     img: pro5,
     quantity: 1,
     category: "Clothes",
+    badge: "Classic",
+    rating: 4.3,
+    description: "Converse casual sneakers, timeless design."
   },
   {
     id: 7,
@@ -77,6 +96,9 @@ export default [
     img: pro4,
     quantity: 1,
     category: "Electronic",
+    badge: "Top Rated",
+    rating: 4.6,
+    description: "High-quality music headphones with deep bass."
   },
   {
     id: 8,
@@ -86,6 +108,9 @@ export default [
     img: pro6,
     quantity: 1,
     category: "Clothes",
+    badge: "Best Seller",
+    rating: 4.1,
+    description: "Comfortable Nike cotton t-shirt for everyday wear."
   },
   {
     id: 9,
@@ -95,6 +120,9 @@ export default [
     img: laptop1,
     quantity: 1,
     category: "laptop",
+    badge: "Featured",
+    rating: 4.4,
+    description: "Lenovo laptop with high performance for professionals."
   },
   {
     id: 10,
@@ -104,6 +132,9 @@ export default [
     img: laptop2,
     quantity: 1,
     category: "laptop",
+    badge: "Top Choice",
+    rating: 4.5,
+    description: "Powerful Dell laptop with sleek design."
   },
   {
     id: 11,
@@ -113,6 +144,9 @@ export default [
     img: home1,
     quantity: 1,
     category: "kitchen",
+    badge: "Comfort Pick",
+    rating: 4.0,
+    description: "Spacious and comfortable sofa for living rooms."
   },
   {
     id: 12,
@@ -122,6 +156,9 @@ export default [
     img: home2,
     quantity: 1,
     category: "kitchen",
+    badge: "Decor",
+    rating: 3.9,
+    description: "Elegant decorative vase for home interiors."
   },
   {
     id: 13,
@@ -131,6 +168,9 @@ export default [
     img: home3,
     quantity: 1,
     category: "kitchen",
+    badge: "Eco-Friendly",
+    rating: 3.8,
+    description: "Reusable water bottle for everyday use."
   },
   {
     id: 14,
@@ -140,6 +180,9 @@ export default [
     img: acc,
     quantity: 1,
     category: "Accessories",
+    badge: "Must Have",
+    rating: 4.2,
+    description: "Car accessories to enhance your driving experience."
   },
   {
     id: 15,
@@ -149,5 +192,9 @@ export default [
     img: acc1,
     quantity: 1,
     category: "Accessories",
+    badge: "Fast Charge",
+    rating: 4.4,
+    description: "Durable charging cable with fast charging support."
   },
 ];
+

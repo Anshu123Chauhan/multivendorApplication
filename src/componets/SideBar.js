@@ -24,100 +24,110 @@ const SideBar = ({ filterP, setAllCategory }) => {
       .catch((err) => alert(err.message));
   };
   return (
-    <div className="flex justify-start max-[676px]:invisible font-['Cairo'] text-medium">
-      <aside className="w-52 absolute mt-6">
-        <div className="px-0 py-6 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800">
-          <ul className="space-y-2">
+    <div className="flex justify-start font-['Cairo']">
+      <aside className="h-full w-full bg-white ">
+        <div className="pr-3 pl-6 pt-3 overflow-y-auto">
+          <ul className="space-y-0 p-0">
+            {/* All Products */}
             <li>
               <button
                 onClick={setAllCategory}
-                className="flex items-center text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <BsFilter size={24} />
+                <BsFilter size={18} />
                 <span className="ml-2">{t("All Products")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
+
+            {/* Laptops */}
             <li>
               <button
                 onClick={() => filterP("laptop")}
-                type="button"
-                className="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                aria-controls="dropdown-example"
-                data-collapse-toggle="dropdown-example"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <BsLaptop size={19} />
-                <span className="flex-1 ml-3 text-left whitespace-nowrap">
-                  {t("Laptops")}
-                </span>
+                <BsLaptop size={16} />
+                <span className="ml-2">{t("Laptops")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
+
+            {/* Clothes */}
             <li>
               <button
                 onClick={() => filterP("Clothes")}
-                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <GiClothes size={23} />
-                <span className="flex-1 ml-3 whitespace-nowrap"> {t("Clothes")} </span>
+                <GiClothes size={18} />
+                <span className="ml-2">{t("Clothes")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
+
+            {/* Phones */}
             <li>
               <button
                 onClick={() => filterP("Phones")}
-                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <BsPhone size={19} />
-                <span className="flex-1 ml-3 whitespace-nowrap">
-                {t("Phones & Tablets")} 
-                </span>
+                <BsPhone size={16} />
+                <span className="ml-2">{t("Phones & Tablets")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
+
+            {/* Accessories */}
             <li>
               <button
                 onClick={() => filterP("Accessories")}
-                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <AiOutlineCar size={21} />
-                <span className="flex-1 ml-3 whitespace-nowrap">
-                {t("Accessoires")} 
-                </span>
+                <AiOutlineCar size={18} />
+                <span className="ml-2">{t("Accessoires")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
+
+            {/* Home */}
             <li>
               <button
                 onClick={() => filterP("kitchen")}
-                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
               >
-                <GiHomeGarage />
-                <span className="flex-1 ml-3 whitespace-nowrap">
-                {t("Home")} 
-                </span>
+                <GiHomeGarage size={18} />
+                <span className="ml-2">{t("Home")}</span>
               </button>
+              <hr className="border-gray-200 m-1.5" />
             </li>
 
+            {/* Login / Logout */}
             <li>
               {userName ? (
                 <button
-                  onClick={() => logOut()}
-                  className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={logOut}
+                  className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
                 >
-                  <BiLogOutCircle size={21} />
-                  <span className="flex-1 ml-3 whitespace-nowrap">{t("SignOut")} </span>
+                  <BiLogOutCircle size={18} />
+                  <span className="ml-2">{t("SignOut")}</span>
                 </button>
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
                 >
-                  <AiOutlineLogin size={20} />
-                  <span className="flex-1 ml-3 whitespace-nowrap">{t("login")} </span>
+                  <AiOutlineLogin size={18} />
+                  <span className="ml-2">{t("login")}</span>
                 </button>
               )}
+              <hr className="border-gray-200 m-1.5" />
             </li>
           </ul>
         </div>
       </aside>
     </div>
   );
+
+
 };
 
 export default SideBar;
