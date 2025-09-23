@@ -3,8 +3,33 @@
 @tailwind utilities;
 body a{
     color: #fff;
+    overflow-x: hidden;
 }
 body nav a:hover{
     color: #9333ea;
     border-bottom: 5px solid #9333ea;
+}
+
+.perspective {
+  perspective: 1000px;
+}
+
+@keyframes cardFlip {
+  0% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  50% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-card-flip {
+  animation: cardFlip 1s ease-in-out;
+  backface-visibility: hidden;
 }
