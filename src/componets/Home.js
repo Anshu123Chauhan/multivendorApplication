@@ -117,10 +117,10 @@ export default function HeroPage() {
         <div className="relative flex flex-col items-center justify-end h-full z-10 pb-20">
           <h2 className="text-4xl mb-4 font-nunito">NEW FOR YOU</h2>
           <div className="flex space-x-6">
-            <button className="font-nunito bg-[#423C39] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
+            <button className="font-nunito bg-[#37312F] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
               FORMALS
             </button>
-            <button className="font-nunito bg-[#423C39] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
+            <button className="font-nunito bg-[#37312F] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
               CASUALS
             </button>
           </div>
@@ -133,14 +133,14 @@ export default function HeroPage() {
       <div className="bg-gray-50 py-14">
         {/* Header */}
         <div className="text-center mb-4">
-          <p className="text-xs text-[#423C39] tracking-widest uppercase">
+          <p className="text-xs text-[#37312F] tracking-widest uppercase">
             Here for you
           </p>
           <div className="flex justify-center space-x-10 mt-3">
             <button
               onClick={() => setActiveTab("BESTSELLER")}
               className={`text-xl font-medium pb-1 transition ${activeTab === "BESTSELLER"
-                  ? "border-b-2 border-gray-900 text-[#423C39]"
+                  ? "border-b-2 border-gray-900 text-[#37312F]"
                   : "text-gray-500 hover:text-amber-800"
                 }`}
             >
@@ -149,7 +149,7 @@ export default function HeroPage() {
             <button
               onClick={() => setActiveTab("NEW")}
               className={`text-xl font-medium pb-1 transition ${activeTab === "NEW"
-                  ? "border-b-2 border-gray-900 text-[#423C39]"
+                  ? "border-b-2 border-gray-900 text-[#37312F]"
                   : "text-gray-500 hover:text-amber-800"
                 }`}
             >
@@ -193,7 +193,7 @@ export default function HeroPage() {
 
         {/* View All Button */}
         <div className="flex justify-center mt-10">
-          <button className="mt-10 bg-[#423C39] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
+          <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
             VIEW ALL
           </button>
         </div>
@@ -290,7 +290,7 @@ export default function HeroPage() {
           </Swiper>
 
           {/* Button */}
-          <button className="mt-10 bg-[#423C39] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
+          <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
             BUY NOW
           </button>
         </div>
@@ -329,7 +329,7 @@ export default function HeroPage() {
         </div>
 
         {/* Button */}
-          <button className="mt-10 bg-[#423C39] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
+          <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
           VIEW ALL
         </button>
       </div>

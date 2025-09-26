@@ -32,7 +32,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={setAllCategory}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <BsFilter size={18} />
                 <span className="ml-2">{t("All Products")}</span>
@@ -44,7 +44,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={() => filterP("laptop")}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <BsLaptop size={16} />
                 <span className="ml-2">{t("Laptops")}</span>
@@ -56,7 +56,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={() => filterP("Clothes")}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <GiClothes size={18} />
                 <span className="ml-2">{t("Clothes")}</span>
@@ -68,7 +68,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={() => filterP("Phones")}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <BsPhone size={16} />
                 <span className="ml-2">{t("Phones & Tablets")}</span>
@@ -80,7 +80,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={() => filterP("Accessories")}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <AiOutlineCar size={18} />
                 <span className="ml-2">{t("Accessoires")}</span>
@@ -92,7 +92,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
             <li>
               <button
                 onClick={() => filterP("kitchen")}
-                className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
               >
                 <GiHomeGarage size={18} />
                 <span className="ml-2">{t("Home")}</span>
@@ -105,7 +105,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
               {userName ? (
                 <button
                   onClick={logOut}
-                  className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                  className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
                 >
                   <BiLogOutCircle size={18} />
                   <span className="ml-2">{t("SignOut")}</span>
@@ -113,7 +113,7 @@ const SideBar = ({ filterP, setAllCategory }) => {
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center w-full py-2 text-sm font-medium text-[#423C39] hover:text-amber-800 transition"
+                  className="flex items-center w-full py-2 text-sm font-medium text-[#37312F] hover:text-amber-800 transition"
                 >
                   <AiOutlineLogin size={18} />
                   <span className="ml-2">{t("login")}</span>
