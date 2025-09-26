@@ -10,40 +10,34 @@ export default function AddToCart() {
 
   const navigate = useNavigate();
 
-
   // Fetch user token from localStorage
   const user = useMemo(() => JSON.parse(localStorage.getItem("user")), []);
 
-
-
-
-
-
-
-  // --- Functions outside JSX ---
+  // --- Functions ---
   const handleUpdateQty = async (product, delta) => {
     const newQty = Math.max(1, product.quantity + delta);
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
       if (!user?.token) return alert("Please login!");
 
       await axios.put(
         "http://localhost:5000/api/ecommerce/cart/update",
-        { productId: product.productId, quantity: newQty, variant: product.variant || null },
+        {
+          productId: product.productId,
+          quantity: newQty,
+          variant: product.variant || null,
+        },
         { headers: { Authorization: user.token } }
       );
 
-      updateQty(product._id, delta); // update local state
+      updateQty(product.productId, delta); // local state update
     } catch (err) {
       console.error("Quantity update failed:", err);
       alert("Failed to update quantity.");
     }
   };
 
-
   const handleRemoveItem = async (product) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
       if (!user?.token) return alert("Please login!");
 
       await axios.delete("http://localhost:5000/api/ecommerce/cart/remove", {
@@ -51,7 +45,10 @@ export default function AddToCart() {
         data: { productId: product.productId },
       });
 
-      removeItem(product._id); // update local state
+      // Local state update
+      setProducts((prev) =>
+        prev.filter((item) => item.productId !== product.productId)
+      );
     } catch (err) {
       console.error("Remove failed:", err);
       alert("Failed to remove item.");
@@ -60,27 +57,21 @@ export default function AddToCart() {
 
   const handleClearCart = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user?.token) {
-        return alert("Please login first!");
-      }
+      if (!user?.token) return alert("Please login!");
 
       await axios.delete("http://localhost:5000/api/ecommerce/cart/clear", {
-        headers: {
-          Authorization: user.token,
-        },
+        headers: { Authorization: user.token },
       });
 
       alert("Cart cleared successfully!");
-      setProducts([]); // empty UI after success
+      setProducts([]);
     } catch (error) {
       console.error("Failed to clear cart:", error);
       alert("Failed to clear cart.");
     }
   };
 
-
-  // Fetch cart items on component mount
+  // Fetch cart items on mount
   useEffect(() => {
     const fetchCart = async () => {
       if (!user?.token) return alert("Please login to view cart!");
@@ -91,9 +82,6 @@ export default function AddToCart() {
           { headers: { Authorization: user.token } }
         );
 
-        console.log("Cart API response:", response.data);
-
-        // Extract items array
         const itemsArray = response.data?.cart?.items || [];
         setProducts(itemsArray);
       } catch (error) {
@@ -125,23 +113,20 @@ export default function AddToCart() {
   const gst = useMemo(() => subtotal * 0.18, [subtotal]);
   const grandTotal = subtotal + shipping + gst;
 
-  // Handlers
-  const updateQty = (id, delta) => {
+  // Local state updates
+  const updateQty = (productId, delta) => {
     setProducts((prev) =>
       prev.map((p) =>
-        p._id === id
+        p.productId === productId
           ? { ...p, quantity: Math.max(1, (p.quantity || 1) + delta) }
           : p
       )
     );
   };
 
-  const removeItem = (id) =>
-    setProducts((prev) => prev.filter((p) => p._id !== id));
-
-  const toggleSaveForLater = (id) =>
+  const toggleSaveForLater = (productId) =>
     setProducts((prev) =>
-      prev.map((p) => (p._id === id ? { ...p, saved: !p.saved } : p))
+      prev.map((p) => (p.productId === productId ? { ...p, saved: !p.saved } : p))
     );
 
   const proceedToCheckout = () => {
@@ -151,7 +136,7 @@ export default function AddToCart() {
   return (
     <div className="max-w-[80vw] mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT: cart items */}
+        {/* LEFT: Cart Items */}
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-semibold">
@@ -164,21 +149,16 @@ export default function AddToCart() {
             </button>
           </div>
 
-          <div className="space-y-4 ">
+          <div className="space-y-4">
             {products.length === 0 && (
               <div className="p-10 bg-gray-50 text-center flex flex-col items-center justify-center">
-                {/* Icon */}
                 <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#37312F] text-amber-700 mb-4">
                   <ShoppingCart size={40} />
                 </div>
-
-                {/* Message */}
                 <p className="text-xl font-semibold mb-2">Your Cart is Empty</p>
                 <p className="text-gray-500 mb-6">
                   Looks like you haven’t added anything yet.
                 </p>
-
-                {/* Button */}
                 <button
                   onClick={() => navigate("/")}
                   className="px-6 py-2 bg-[#37312F] text-white hover:bg-[#504f4f] transition"
@@ -190,16 +170,14 @@ export default function AddToCart() {
 
             {products.map((p) => (
               <motion.div
-                key={p._id}
+                key={p.productId}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-4 p-4 bg-gray-50 items-center"
               >
-                {/* If you have image in your backend, replace p.image */}
                 <img
                   src={
-                    p.variant?.selectedVariant?.images?.[0] ||
-                    "https://via.placeholder.com/100"
+                    p.variant?.selectedVariant?.images?.[0] || p.image || "https://via.placeholder.com/100"
                   }
                   alt={p.name}
                   className="w-28 h-28 object-cover rounded-md"
@@ -243,7 +221,7 @@ export default function AddToCart() {
 
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => toggleSaveForLater(p._id)}
+                        onClick={() => toggleSaveForLater(p.productId)}
                         className="text-sm px-3 py-1 rounded-md hover:bg-gray-50 flex items-center gap-2"
                       >
                         <Heart
@@ -254,7 +232,7 @@ export default function AddToCart() {
                       </button>
 
                       <button
-                        onClick={handleRemoveItem}
+                        onClick={() => handleRemoveItem(p)}
                         className="text-sm px-3 py-1 rounded-md hover:bg-red-50 flex items-center gap-2 text-red-600"
                       >
                         <Trash2 size={14} />
@@ -268,7 +246,7 @@ export default function AddToCart() {
           </div>
         </div>
 
-        {/* RIGHT: order summary */}
+        {/* RIGHT: Order Summary */}
         <aside className="bg-gray-50 rounded-lg p-4 shadow-sm h-fit">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Price Details</h3>
@@ -303,12 +281,9 @@ export default function AddToCart() {
           >
             Place Order — ₹{grandTotal.toFixed(0)}
           </button>
-
-          {/* <button className="w-full mt-3 py-2 rounded-lg border border-gray-200 text-sm">
-            Continue shopping
-          </button> */}
         </aside>
       </div>
     </div>
   );
 }
+
