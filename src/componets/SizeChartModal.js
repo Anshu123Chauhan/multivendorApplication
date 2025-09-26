@@ -10,10 +10,10 @@ const SizeChartModal = ({ open, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             {product.map((data) => (
-                <div className="bg-white rounded-lg w-[850px] max-h-[90vh] overflow-y-auto text-[#423C39] shadow-lg relative">
+                <div className="bg-white rounded-lg w-[850px] max-h-[90vh] overflow-y-auto text-[#37312F] shadow-lg relative">
                     {/* Close Button */}
                     <button
-                        className="absolute top-2 right-4 text-2xl font-bold text-[#423C39] hover:text-amber-700"
+                        className="absolute top-2 right-4 text-2xl font-bold text-[#37312F] hover:text-amber-700"
                         onClick={onClose}
                     >
                         ✕
@@ -53,8 +53,8 @@ const SizeChartModal = ({ open, onClose }) => {
                     {/* Unit Toggle */}
                     <div className="flex justify-end items-center p-4">
                         <div className="flex border rounded-full overflow-hidden text-xs">
-                            <button className="px-3 py-1 bg-[#423C39] text-white">in</button>
-                            <button className="px-3 py-1 text-[#423C39]">cm</button>
+                            <button className="px-3 py-1 bg-[#37312F] text-white">in</button>
+                            <button className="px-3 py-1 text-[#37312F]">cm</button>
                         </div>
                     </div>
 
