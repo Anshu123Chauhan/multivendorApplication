@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import "./css_files/showProduct.css";
+// import "./css_files/showProduct.css";
 import emailjs from "@emailjs/browser";
 import { BsXLg } from "react-icons/bs";
 import AnimatePage from "../animation/AnimatePage";
