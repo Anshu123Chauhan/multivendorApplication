@@ -100,8 +100,10 @@ export default function Header({ isShopPage }) {
           </div>
 
           <ProfilePopup />
-          <Heart className="text-white w-5 h-5 cursor-pointer hover:text-amber-800" />
-          <Link to="/checkout">
+          <Link to="/wishlist">
+            <Heart className="text-white w-5 h-5 cursor-pointer hover:text-amber-800" />
+          </Link>
+          <Link to="/cart">
             <ShoppingBag className="text-white w-5 h-5 cursor-pointer hover:text-amber-800" />
           </Link>
         </div>

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import AnimatePage from "../animation/AnimatePage";
 import SizeChartModal from "./SizeChartModal";
+import { useNavigate } from "react-router-dom";
 import { use } from "react";
 
 export const ProductDetails = () => {
@@ -13,9 +14,10 @@ export const ProductDetails = () => {
   const [mainimage, setMainImage] = useState("")
   const [selectedcolor, setSelectedColor] = useState("")
   const [selectedsize, setSelectedSize] = useState("")
-
+  const [stock, setStock] = useState(0);
   const [selectedImage, setSelectedImage] = useState("");
-
+  
+  const navigate = useNavigate();
 
   const handleAddToCart = async () => {
     try {
@@ -54,7 +56,8 @@ export const ProductDetails = () => {
       );
 
       console.log("Added to cart:", response.data);
-      alert("Product added to cart successfully!");
+      // alert("Product added to cart successfully!");
+      navigate("/cart")
     } catch (error) {
       console.error("Add to cart failed:", error);
       alert("Failed to add product to cart.");
@@ -80,47 +83,34 @@ export const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/ecommerce/product/${id}`
-        );
+        const response = await axios.get(`http://localhost:5000/api/ecommerce/product/${id}`);
         const data = response.data;
-
         setProduct(data);
 
-        // Agar variants hain to first valid variant map se select karo
+        // Agar variants exist
         if (data.variants && data.variants.length > 0) {
           const firstVariant = data.variants
-            .map((v) => (!v.isDeleted ? v : null))
-            .find((v) => v !== null);
+            .filter(v => !v.isDeleted) // valid variants
+            .find(() => true); // first valid
 
           if (firstVariant) {
             setSelectedVariant(firstVariant);
-
-            // Set main image
-            if (firstVariant.images?.length > 0) {
-              setMainImage(firstVariant.images[0]);
-            }
-
-            // Set color & size dynamically
-            const colorAttr = firstVariant.attributes?.find(
-              (attr) => attr.type.toLowerCase() === "color"
-            );
-            const sizeAttr = firstVariant.attributes?.find(
-              (attr) => attr.type.toLowerCase() === "size"
-            );
-
+            setStock(firstVariant.stock || 0); // ✅ set variant stock
+            if (firstVariant.images?.length > 0) setMainImage(firstVariant.images[0]);
+            const colorAttr = firstVariant.attributes?.find(attr => attr.type.toLowerCase() === "color");
+            const sizeAttr = firstVariant.attributes?.find(attr => attr.type.toLowerCase() === "size");
             if (colorAttr) setSelectedColor(colorAttr.value);
             if (sizeAttr) setSelectedSize(sizeAttr.value);
           }
         } else {
-          // Agar koi variant nahi hai, product ka main image use karo
+          // No variants → use product-level inventory
+          setStock(data.inventory || 0);
           if (data.images?.length > 0) setMainImage(data.images[0]);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
       }
     };
-
     fetchProduct();
   }, [id]);
 
@@ -270,7 +260,7 @@ export const ProductDetails = () => {
                             if (variant.images?.length > 0) setMainImage(variant.images[0]);
                           }}
                           className={`px-3 py-1 border text-sm cursor-pointer transition 
-              ${isSelected
+                           ${isSelected
                               ? "border-amber-800 text-amber-800 font-semibold"
                               : "border-gray-300 text-gray-600 hover:border-amber-700 hover:text-amber-700"}`}
                         >
@@ -314,16 +304,26 @@ export const ProductDetails = () => {
 
             {/* Buttons (Static) */}
             <div className="flex space-x-3 mt-6">
-              <button
-                onClick={handleAddToCart}
-                className="bg-amber-700 text-white px-5 py-2 text-sm font-medium shadow hover:bg-amber-800 transition">
-                Add to Cart
-              </button>
-              <button className="border border-amber-700 text-amber-700 px-5 py-2 text-sm font-medium hover:bg-[#c7c7c7] transition">
+              {stock > 0 ? (
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-amber-700 text-white px-4 py-2 whitespace-nowrap text-sm font-medium shadow hover:bg-amber-800 transition"
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="bg-gray-400 text-white px-4 py-2 whitespace-nowrap text-sm font-medium shadow cursor-not-allowed"
+                >
+                  Out of Stock
+                </button>
+              )}
+              <button className="border border-amber-700 text-amber-700 px-4 py-2 whitespace-nowrap text-sm font-medium hover:bg-[#c7c7c7] transition">
                 Buy Now
               </button>
               <button
-                className="text-blue-600 text-sm underline hover:text-blue-800"
+                className="text-[#37312F] text-sm underline hover:text-[#37312F] whitespace-nowrap"
                 onClick={() => setOpen(true)}
               >
                 Size Chart

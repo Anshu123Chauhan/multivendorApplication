@@ -4,13 +4,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { auth } from "../firebase/firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useEffect } from "react";
 import {
   selectUserName,
   selectUserPic,
   selectUserEmail,
   setLogOut,
 } from "../feautres/userSlice";
-import { useEffect } from "react";
 
 const Account = () => {
   const { t, i18n } = useTranslation();
