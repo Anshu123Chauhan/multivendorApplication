@@ -17,6 +17,7 @@ import AddToCart from "./componets/AddToCart.js";
 import { NotificationProvider } from "./reusableComponent/NotificationProvider.js";
 import WishList from "./componets/WishList.js";
 import AddressPage from "./componets/AddressPage.js";
+import OrderSummary from "./componets/OrderSummary";
 // import OrderDetails from "./componets/OrderDetails.js";
 
 function Layout({ children }) {
@@ -26,8 +27,8 @@ function Layout({ children }) {
   // const isShopPage = location.pathname === "/shop";
   // const isHomePage = location.pathname === "/";
 
-  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/cart/address","/cart/order"].includes(location.pathname) || location.pathname.startsWith("/product");
-  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/cart/address","/cart/order"].includes(location.pathname) || location.pathname.startsWith("/product")
+  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/cart/address","/cart/order","/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product");
+  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/cart/address","/cart/order","/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product")
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,6 +64,7 @@ function App() {
           <Route path="/cart" element={<AddToCart />} />
           <Route path="/wishlist" element={<WishList />} />
           <Route path="/cart/address" element={<AddressPage />} />
+          <Route path="/order-summary" element={<OrderSummary />} />
           {/* <Route path="/cart/order" element={<OrderDetails />} /> */}
 
           <Route path="*" element={<PageNotFount />} />
