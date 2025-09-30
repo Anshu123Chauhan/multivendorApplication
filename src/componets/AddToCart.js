@@ -3,17 +3,19 @@ import { Trash2, Minus, Plus, Heart, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { useNotification } from "../reusableComponent/NotificationProvider";
+import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 
 export default function AddToCart() {
+  const { showNotification } = useNotification();
   const [products, setProducts] = useState([]);
   const [shipping, setShipping] = useState(0);
-
   const navigate = useNavigate();
+  const [openDialog, setOpenDialog] = useState(false);
 
-  // Fetch user token from localStorage
+
   const user = useMemo(() => JSON.parse(localStorage.getItem("user")), []);
 
-  // --- Functions ---
   const handleUpdateQty = async (product, delta) => {
     const newQty = Math.max(1, product.quantity + delta);
     try {
@@ -38,36 +40,37 @@ export default function AddToCart() {
 
   const handleRemoveItem = async (product) => {
     try {
-      if (!user?.token) return alert("Please login!");
+      if (!user?.token) return showNotification("Please login!", "success");
 
       await axios.delete("http://localhost:5000/api/ecommerce/cart/remove", {
         headers: { Authorization: user.token },
         data: { productId: product.productId },
       });
 
-      // Local state update
       setProducts((prev) =>
         prev.filter((item) => item.productId !== product.productId)
       );
+
+      showNotification("Item removed successfully!", "success");
     } catch (err) {
       console.error("Remove failed:", err);
-      alert("Failed to remove item.");
+      showNotification("Failed to remove item.", "error");
     }
   };
 
   const handleClearCart = async () => {
     try {
-      if (!user?.token) return alert("Please login!");
+      if (!user?.token) return showNotification("Please login!", "success");
 
       await axios.delete("http://localhost:5000/api/ecommerce/cart/clear", {
         headers: { Authorization: user.token },
       });
 
-      alert("Cart cleared successfully!");
+      showNotification("Cart cleared successfully!", "success");
+      setOpenDialog(false)
       setProducts([]);
     } catch (error) {
-      console.error("Failed to clear cart:", error);
-      alert("Failed to clear cart.");
+      showNotification("Failed to clear cart.", "error");
     }
   };
 
@@ -130,7 +133,8 @@ export default function AddToCart() {
     );
 
   const proceedToCheckout = () => {
-    alert("Proceeding to checkout...");
+    navigate("/cart/address")
+    // alert("Proceeding to checkout...");
   };
 
   return (
@@ -142,11 +146,22 @@ export default function AddToCart() {
             <h2 className="text-2xl font-semibold">
               My Cart ({totalItems} items)
             </h2>
-            <button
-              onClick={handleClearCart}
-              className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 hover:bg-red-50 transition">
-              Empty Cart
-            </button>
+            <div>
+
+              {products.length > 0 && (<button
+                onClick={() => setOpenDialog(true)}
+                className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 hover:bg-red-50 transition"
+              >
+                Empty Cart
+              </button>)}
+
+              <ConfirmMassage
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                onConfirm={handleClearCart}
+                message="Are you sure you want to clear your cart?"
+              />
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -265,7 +280,7 @@ export default function AddToCart() {
             </div>
 
             <div className="py-3 flex justify-between">
-              <div>GST (18%)</div>
+              <div>GST</div>
               <div>₹{gst.toFixed(0)}</div>
             </div>
 
@@ -279,7 +294,8 @@ export default function AddToCart() {
             onClick={proceedToCheckout}
             className="w-full mt-4 py-2 bg-[#37312F] hover:hover:bg-[#504f4f] text-white font-semibold hover:brightness-95"
           >
-            Place Order — ₹{grandTotal.toFixed(0)}
+            Continue
+            {/* Place Order — ₹{grandTotal.toFixed(0)} */}
           </button>
         </aside>
       </div>
