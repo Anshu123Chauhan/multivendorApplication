@@ -41,7 +41,7 @@ export const ProductDetails = () => {
         price: selectedVariant?.price || product.sellingPrice,
         quantity: 1,
         image: selectedVariant?.images?.[0] || product.images?.[0] || "", // <-- image logic
-        ...(selectedVariant && { variant: { selectedVariant } }),
+        ...(selectedVariant && { variant:  selectedVariant  }),
       };
 
       const response = await axios.post(

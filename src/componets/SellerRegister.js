@@ -11,7 +11,7 @@ export default function SellerRegistration() {
     businessName: "",
     businessAddress: "",
     phone: "",
-    identityProof: "aadhaar",
+    identityProof: "Aadhaar",
     identityProofNumber: "",
     accountHolder: "",
     gstNumber: "",
@@ -149,20 +149,38 @@ export default function SellerRegistration() {
     return "";
   };
   const handleSubmit = async () => {
-    if (validate()) {
+  if (validate()) {
+    try {
       const response = await axios.post(`${apiurl}/seller/register`, formData);
-      // console.log("Form Data:", response.status);
+
+      console.log("Form Data:", response);
+
       if (response.status === 200) {
-        
-        toast.success(response.data.message);
+        toast.success(response.data.message || "Registered successfully!");
       } else {
-        toast.warn(response.data.message);
+        toast.warn(response.data.message || "Something went wrong!");
       }
-      
-    } else {
-      toast.error("Please fill all the mandatory fields");
+
+    } catch (error) {
+   
+      if (error.response) {
+        toast.warn(error.response.data.message || "Server error occurred!");
+      } 
+    
+      else if (error.request) {
+        toast.error("No response from server. Please try again!");
+      } 
+
+      else {
+        toast.error("Unexpected error occurred!");
+      }
+      console.error("Error:", error);
     }
-  };
+  } else {
+    toast.error("Please fill all the mandatory fields");
+  }
+};
+
 
   return (
     <div

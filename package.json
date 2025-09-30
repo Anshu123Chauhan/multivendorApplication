@@ -19,6 +19,7 @@
     "firebase-tools": "^11.26.0",
     "framer-motion": "^10.0.1",
     "i18next-browser-languagedetector": "^7.0.1",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.544.0",
     "mdb-react-ui-kit": "^6.0.0",
     "react-i18next": "^12.2.0",
@@ -32,6 +33,7 @@
     "react-toastify": "^9.1.2",
     "redux": "^4.2.1",
     "slick-carousel": "^1.8.1",
+    "sweetalert2": "^11.23.0",
     "swiper": "^12.0.1",
     "web-vitals": "^2.1.4"
   },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 
@@ -14,6 +14,7 @@ export default function AddressPage() {
         postalCode: "",
         country: "",
     });
+    const [totalPrice, setTotalPrice] = useState(0);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [confirmedAddress, setConfirmedAddress] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -22,6 +23,9 @@ export default function AddressPage() {
     const [showForm, setShowForm] = useState(true);
     const [addresses, setAddresses] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
+    const user = useMemo(() => JSON.parse(localStorage.getItem("user")), []);
+    const [products, setProducts] = useState([]);
+    //   const user = JSON.parse(localStorage.getItem("user"));
 
     const handleDeliverHere = () => {
         if (selectedAddress) {
@@ -61,8 +65,27 @@ export default function AddressPage() {
         }
     };
 
+    useEffect(() => {
+        const fetchCart = async () => {
+            if (!user?.token) return alert("Please login to view cart!");
 
+            try {
+                const response = await axios.get(
+                    "http://localhost:5000/api/ecommerce/cart/list",
+                    { headers: { Authorization: user.token } }
+                );
 
+                const itemsArray = response.data?.cart?.items || [];
+                setProducts(itemsArray);
+                setTotalPrice(response.data?.cart?.totalPrice || 0);
+            } catch (error) {
+                console.error("Failed to fetch cart:", error);
+                alert("Failed to fetch cart data.");
+            }
+        };
+
+        fetchCart();
+    }, [user]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -154,18 +177,20 @@ export default function AddressPage() {
         <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
             <div className="max-w-7xl w-full grid grid-cols-[65%_35%] gap-6">
                 {/* LEFT SIDE */}
-                <div className="bg-white shadow-md rounded-2xl p-6">
+                <div className="bg-white p-6">
                     {showForm ? (
                         <>
-                            <h2 className="text-xl font-semibold mb-6 border-b pb-2">Add Address</h2>
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <h2 className="text-xl font-semibold mb-6 border-b pb-2 font-nunito">
+                                Add Address
+                            </h2>
+                            <form onSubmit={handleSubmit} className="space-y-4 font-nunito">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input
                                         type="text"
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="Full Name*"
                                         required
                                     />
@@ -174,7 +199,7 @@ export default function AddressPage() {
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="Mobile Number*"
                                         required
                                     />
@@ -185,7 +210,7 @@ export default function AddressPage() {
                                     name="street"
                                     value={formData.street}
                                     onChange={handleChange}
-                                    className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                     placeholder="Street / House No*"
                                     required
                                 />
@@ -194,7 +219,7 @@ export default function AddressPage() {
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
-                                    className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                     placeholder="Full Address (locality, building, area)*"
                                     rows="2"
                                     required
@@ -205,7 +230,7 @@ export default function AddressPage() {
                                     name="landmark"
                                     value={formData.landmark}
                                     onChange={handleChange}
-                                    className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                     placeholder="Landmark (optional)"
                                 />
 
@@ -215,7 +240,7 @@ export default function AddressPage() {
                                         name="city"
                                         value={formData.city}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="City*"
                                         required
                                     />
@@ -224,7 +249,7 @@ export default function AddressPage() {
                                         name="state"
                                         value={formData.state}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="State*"
                                         required
                                     />
@@ -236,7 +261,7 @@ export default function AddressPage() {
                                         name="postalCode"
                                         value={formData.postalCode}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="Postal Code*"
                                         required
                                     />
@@ -245,7 +270,7 @@ export default function AddressPage() {
                                         name="country"
                                         value={formData.country}
                                         onChange={handleChange}
-                                        className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full border p-3 text-sm focus:ring-2 focus:ring-[#37312F] outline-none"
                                         placeholder="Country*"
                                         required
                                     />
@@ -255,14 +280,14 @@ export default function AddressPage() {
                                     <button
                                         type="button"
                                         onClick={() => setShowForm(false)}
-                                        className="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                                        className="px-6 py-2 border text-[#37312F] font-medium hover:bg-gray-100 transition"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition disabled:opacity-50"
+                                        className="px-6 py-2 bg-[#37312F] text-white font-medium hover:opacity-90 transition disabled:opacity-50"
                                     >
                                         {loading ? "Saving..." : "Save"}
                                     </button>
@@ -272,6 +297,7 @@ export default function AddressPage() {
                                 {error && <p className="text-red-600 mt-2">{error}</p>}
                             </form>
                         </>
+
                     ) : (
 
 
@@ -279,14 +305,14 @@ export default function AddressPage() {
                             {!confirmedAddress ? (
                                 <>
                                     {/* Header */}
-                                    <div className="flex items-center justify-between mb-2 border-b pb-3">
-                                        <h2 className="text-2xl font-bold text-gray-800">
+                                    <div className="flex items-center justify-between mb-2 border-b pb-2 font-nunito">
+                                        <h2 className="text-xl font-bold text-gray-800">
                                             Select Delivery Address
                                         </h2>
 
                                         <button
                                             onClick={() => setShowForm(true)}
-                                            className="bg-pink-100 text-pink-600 font-semibold py-2 px-4 rounded-xl hover:bg-pink-200 transition"
+                                            className="bg-[#37312F] text-white font-semibold py-1 px-3 hover:opacity-90 transition"
                                         >
                                             + Add New Address
                                         </button>
@@ -298,17 +324,20 @@ export default function AddressPage() {
                                         return (
                                             <div
                                                 key={addr._id}
-                                                className={`relative border border-gray-200 rounded-xl p-4 mb-2 shadow-sm hover:shadow-md transition-shadow bg-white ${isSelected ? "border-pink-400" : ""
+                                                className={`relative border border-gray-300 p-3 mb-1 bg-white font-nunito ${isSelected ? "border-[#37312F]" : ""
                                                     }`}
                                             >
                                                 {/* Top-right buttons */}
-                                                <div className="absolute top-3 right-3 flex gap-1">
-                                                    <button className="text-xs text-gray-500 hover:text-red-500 transition">
+                                                <div className="absolute top-2 right-2 flex gap-1 text-xs">
+                                                    <button
+                                                        onClick={() => handleRemove(addr._id)}
+                                                        className="text-gray-600 hover:text-red-600 transition"
+                                                    >
                                                         Remove
                                                     </button>
                                                     <button
                                                         onClick={() => setShowForm(true)}
-                                                        className="text-xs text-gray-500 hover:text-blue-500 transition"
+                                                        className="text-gray-600 hover:text-blue-600 transition"
                                                     >
                                                         Edit
                                                     </button>
@@ -325,7 +354,7 @@ export default function AddressPage() {
                                                                 setSelectedAddress(isSelected ? null : addr._id)
                                                             }
                                                         />
-                                                        <div className="w-4 h-4 border border-gray-300 rounded-md peer-checked:bg-pink-500 peer-checked:border-pink-500 flex items-center justify-center transition-all duration-200">
+                                                        <div className="w-4 h-4 border border-gray-400 flex items-center justify-center transition-all duration-200 peer-checked:bg-[#37312F] peer-checked:border-[#37312F]">
                                                             <svg
                                                                 className="hidden w-3 h-3 text-white peer-checked:block"
                                                                 fill="none"
@@ -344,31 +373,30 @@ export default function AddressPage() {
                                                     <h3 className="font-semibold text-gray-900 text-sm mb-0">
                                                         {addr.name}
                                                     </h3>
-                                                    <span className="px-1 py-[1px] text-xs bg-green-100 text-green-700 rounded-full font-medium">
+                                                    <span className="px-1 py-[1px] text-xs bg-green-100 text-green-700 font-medium">
                                                         HOME
                                                     </span>
                                                 </div>
 
                                                 {/* Address */}
-                                                <p className="text-gray-600 mt-2 mb-0">
+                                                <p className="text-gray-700 mt-1 mb-0 text-sm">
                                                     {addr.address}, {addr.street}, {addr.landmark}
                                                 </p>
-                                                <p className="text-gray-600 mt-1 mb-0">
+                                                <p className="text-gray-700 mt-1 mb-0 text-sm">
                                                     {addr.city}, {addr.state} - {addr.postalCode}
                                                 </p>
-                                                <p className="text-gray-600 mt-1 mb-0">
-                                                    Mobile:{" "}
-                                                    <span className="font-medium text-gray-800">{addr.phone}</span>
+                                                <p className="text-gray-700 mt-1 mb-0 text-sm">
+                                                    Mobile: <span className="font-medium text-gray-800">{addr.phone}</span>
                                                 </p>
 
                                                 {/* Expandable Deliver Button */}
                                                 <div
-                                                    className={`overflow-hidden transition-all duration-300 ${isSelected ? "max-h-20 mt-4" : "max-h-0"
+                                                    className={`overflow-hidden transition-all duration-300 ${isSelected ? "max-h-16 mt-2" : "max-h-0"
                                                         }`}
                                                 >
                                                     <button
                                                         onClick={handleDeliverHere}
-                                                        className="w-full text-center bg-pink-100 text-pink-600 font-semibold py-2 rounded-xl hover:bg-pink-200 transition"
+                                                        className="w-full text-center bg-[#37312F] text-white font-semibold py-1 hover:opacity-90 transition"
                                                     >
                                                         Deliver Here
                                                     </button>
@@ -377,16 +405,17 @@ export default function AddressPage() {
                                         );
                                     })}
                                 </>
+
                             ) : (
                                 <>
                                     {/* ✅ Selected Address Shown */}
-                                    <div className="border border-pink-400 rounded-xl p-4 bg-white shadow-sm mb-4 relative">
+                                    <div className="border border-[#37312F] p-3 bg-white mb-3 font-nunito relative">
                                         {/* Header with Change Address */}
-                                        <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center justify-between mb-1">
                                             <h3 className="font-semibold text-gray-900 text-sm">Delivery Address</h3>
                                             <button
                                                 onClick={() => setConfirmedAddress(null)}
-                                                className="text-sm text-blue-600 hover:underline font-medium"
+                                                className="text-sm text-[#37312F] hover:underline font-medium"
                                             >
                                                 Change Address
                                             </button>
@@ -396,67 +425,84 @@ export default function AddressPage() {
                                             .filter((a) => a._id === confirmedAddress)
                                             .map((addr) => (
                                                 <div key={addr._id}>
-                                                    <p className="text-gray-700 font-medium">{addr.name}</p>
-                                                    <p className="text-gray-600">
+                                                    <p className="text-gray-800 font-medium text-sm">{addr.name}</p>
+                                                    <p className="text-gray-700 text-xs">
                                                         {addr.address}, {addr.street}, {addr.landmark}
                                                     </p>
-                                                    <p className="text-gray-600">
+                                                    <p className="text-gray-700 text-xs">
                                                         {addr.city}, {addr.state} - {addr.postalCode}
                                                     </p>
-                                                    <p className="text-gray-600">
+                                                    <p className="text-gray-700 text-xs">
                                                         Mobile: <span className="font-medium">{addr.phone}</span>
                                                     </p>
                                                 </div>
                                             ))}
                                     </div>
 
-
                                     {/* ✅ Order Summary Section */}
-                                    <div className="border rounded-2xl p-4 bg-white shadow-md">
+                                    <div className="border p-3 bg-white font-nunito">
                                         {/* Heading */}
-                                        <h3 className="text-lg font-bold text-gray-800 mb-4">Order Summary</h3>
-                                        <hr className="my-4" />
+                                        <h3 className="text-sm font-bold text-gray-800 mb-2">Order Summary</h3>
 
-                                        {/* Product Row */}
-                                        <div className="flex items-start gap-4">
-                                            {/* Image */}
-                                            <img
-                                                src="https://via.placeholder.com/100" // Replace with actual product image
-                                                alt="Fastrack FS1 Pro Watch"
-                                                className="w-32 h-32 object-cover rounded-lg border"
-                                            />
+                                        {products.length > 0 ? (
+                                            <>
+                                                {products.map((item, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-start gap-2 mb-2 border-b pb-2 last:border-none"
+                                                    >
+                                                        {/* ✅ Product Image */}
+                                                        <img
+                                                            src={
+                                                                item.variant?.selectedVariant?.images?.[0] ||
+                                                                "https://via.placeholder.com/80"
+                                                            }
+                                                            alt={item.name}
+                                                            className="w-20 h-20 object-cover border"
+                                                        />
 
-                                            {/* Details */}
-                                            <div className="flex-1 text-left">
-                                                <p className="font-semibold text-gray-800 text-sm leading-snug line-clamp">
-                                                    Fastrack FS1 Pro / World's First, 1.96&quot; Super AMOLED [...]
-                                                </p>
-                                                <p className="text-gray-500 text-xs">Blue Strap, Free Size</p>
+                                                        {/* ✅ Product Details */}
+                                                        <div className="flex-1 text-left">
+                                                            <p className="font-semibold text-gray-800 text-sm leading-snug">
+                                                                {item.name}
+                                                            </p>
+                                                            <p className="text-gray-500 text-xs mt-1 line-clamp-2">
+                                                                {item.description}
+                                                            </p>
 
-                                                {/* Price Row */}
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-red-600 font-semibold text-base">₹2,695</span>
-                                                    <span className="line-through text-gray-400 text-xs">₹7,995</span>
-                                                    <span className="text-green-600 text-xs font-medium">66% Off</span>
-                                                </div>
+                                                            {/* Attributes */}
+                                                            {item.variant?.selectedVariant?.attributes?.length > 0 && (
+                                                                <p className="text-xs text-gray-600 mt-1">
+                                                                    {item.variant.selectedVariant.attributes
+                                                                        .map((attr) => `${attr.type}: ${attr.value}`)
+                                                                        .join(", ")}
+                                                                </p>
+                                                            )}
 
-                                                <p className="text-blue-600 text-xs">10 offers available</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Divider */}
-
-                                        {/* Price Details */}
-
-
-                                        {/* CTA Button */}
-                                        <button className="mt-5 w-full bg-orange-600 text-white font-semibold py-2.5 rounded-xl hover:bg-orange-700 transition shadow-sm">
-                                            CONTINUE
-                                        </button>
+                                                            {/* ✅ Price + Qty */}
+                                                            <div className="flex items-center gap-1 mt-1">
+                                                                <span className="text-red-600 font-semibold text-sm">
+                                                                    ₹{item.price}
+                                                                </span>
+                                                                {item.variant?.selectedVariant?.mrp && (
+                                                                    <span className="line-through text-gray-400 text-xs">
+                                                                        ₹{item.variant.selectedVariant.mrp}
+                                                                    </span>
+                                                                )}
+                                                                <span className="text-xs text-gray-600 ml-1">
+                                                                    Qty: {item.quantity}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <p className="text-gray-500 text-xs">No items in cart</p>
+                                        )}
                                     </div>
-
-
                                 </>
+
                             )}
                         </div>
 
@@ -465,9 +511,12 @@ export default function AddressPage() {
                 </div>
 
                 {/* RIGHT SIDE - PRICE DETAILS */}
-                <div className="bg-white shadow-md rounded-2xl p-6 h-fit">
-                    <h2 className="text-lg font-semibold mb-4">Price Details (1 Item)</h2>
-                    <div className="space-y-2 text-gray-700">
+                <div className="border p-3 bg-white font-nunito h-fit">
+                    <h2 className="text-sm font-semibold mb-2 text-gray-800">
+                        Price Details (1 Item)
+                    </h2>
+
+                    <div className="space-y-1 text-gray-700 text-xs">
                         <div className="flex justify-between">
                             <span>Total MRP</span>
                             <span>₹1,099</span>
@@ -480,19 +529,20 @@ export default function AddressPage() {
                             <span>Platform & Event Fee</span>
                             <span className="text-green-600">FREE</span>
                         </div>
-                        <hr className="my-2" />
-                        <div className="flex justify-between font-semibold text-lg">
+                        <hr className="my-1 border-gray-300" />
+                        <div className="flex justify-between font-semibold text-sm text-gray-900">
                             <span>Total Amount</span>
                             <span>₹483</span>
                         </div>
                     </div>
 
                     {!showForm && (
-                        <button className="mt-6 w-full bg-pink-500 text-white py-3 rounded-lg hover:bg-pink-600">
+                        <button className="mt-3 w-full bg-[#37312F] text-white py-1 hover:opacity-90 transition font-medium text-sm">
                             CONTINUE
                         </button>
                     )}
                 </div>
+
             </div>
         </div>
     );

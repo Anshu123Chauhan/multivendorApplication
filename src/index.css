@@ -33,3 +33,9 @@ body nav a:hover{
   animation: cardFlip 1s ease-in-out;
   backface-visibility: hidden;
 }
+.swal2-confirm{
+  background-color: #d33;
+}
+.swal2-cancel{
+  background-color: #3085d6;
+}

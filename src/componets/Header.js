@@ -1,113 +1,179 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Search, Heart, ShoppingBag } from "lucide-react";
+import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import ProfilePopup from "../reusableComponent/ProfilePopup";
 import MenCollections from "./MenCollections";
 
+const navLinks = [
+  { label: "Women", to: "/shop" },
+  { label: "Kids", to: "/shop" },
+  { label: "Home", to: "/shop" },
+  { label: "Beauty", to: "/shop" },
+  { label: "Electronics", to: "/shop" },
+];
+
 export default function Header({ isShopPage }) {
-  const [menuHovered, setMenuHovered] = useState(null); // for MEN/WOMEN etc
-  const [searchHovered, setSearchHovered] = useState(false); // for search input
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    if (!isShopPage) {
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
+    if (isShopPage) {
+      setIsScrolled(false);
+      return;
     }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [isShopPage]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsSearchOpen(false);
+    }
+  }, [isMobileMenuOpen]);
+
+  const mobileLinks = [{ label: "Men", to: "/shop" }, ...navLinks];
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen((prev) => !prev);
+  };
+
+  const handleSearchBlur = () => {
+    setIsSearchOpen(false);
+  };
+
+  const headerClasses = `top-0 left-0 w-full z-50 transition-colors duration-500 ${
+    isShopPage
+      ? "bg-[#37312F] shadow-md relative"
+      : `fixed ${isScrolled ? "bg-[#37312F] shadow-md" : "bg-transparent"}`
+  }`;
+
   return (
-    <div
-      className={`top-0 left-0 w-full z-50 transition-colors duration-500 ${isShopPage
-        ? "bg-[#37312F] shadow-md relative"
-        : `fixed ${isScrolled ? "bg-[#37312F] shadow-md" : "bg-transparent"}`
-        }`}
-    >
-      <div className="flex justify-between items-center px-10 py-6">
-        {/* Brand */}
-        <div className="font-nunito text-2xl font-bold text-white">
+    <header className={headerClasses}>
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10 lg:py-6">
+        <Link
+          to="/"
+          className="font-nunito text-xl font-bold tracking-wide text-white sm:text-2xl"
+        >
           ENS ENTERPRISES
-        </div>
+        </Link>
 
-        {/* Links */}
-        <div className="flex space-x-8 text-sm font-medium">
-          {/* MEN with popup */}
-          {/* <div
-            className="relative"
-            onMouseEnter={() => setMenuHovered("men")}
-            onMouseLeave={() => setMenuHovered(null)}
-          >
-            <Link
-              to="/shop"
-              className="font-nunito hover:text-amber-800 transition"
-            >
-              MEN
-            </Link>
-            {menuHovered === "men" && <MenCollections />}
-          </div> */}
+        <nav className="hidden items-center gap-8 text-sm font-medium text-white lg:flex">
           <MenCollections />
+          {navLinks.map(({ label, to }) => (
+            <Link
+              key={label}
+              to={to}
+              className="uppercase tracking-wide transition hover:text-amber-300"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
 
-          <Link to="/shop" className="font-nunito hover:text-amber-800 transition">
-            WOMEN
-          </Link>
-          <Link to="/shop" className="font-nunito hover:text-amber-800 transition">
-            KIDS
-          </Link>
-          <Link to="/shop" className="font-nunito hover:text-amber-800 transition">
-            HOME
-          </Link>
-          <Link to="/shop" className="font-nunito hover:text-amber-800 transition">
-            BEAUTY
-          </Link>
-          <Link to="/shop" className="font-nunito hover:text-amber-800 transition">
-            ELECTRONICS
-          </Link>
-        </div>
-
-        {/* Icons */}
-        <div className="flex space-x-6">
+        <div className="flex items-center gap-2 text-white sm:gap-3">
           <div
-            className="flex items-center relative group"
-            onMouseEnter={() => setSearchHovered(true)}
-            onMouseLeave={() => setSearchHovered(false)}
+            className="relative hidden items-center md:flex"
+            onMouseEnter={() => setIsSearchOpen(true)}
+            onMouseLeave={() => setIsSearchOpen(false)}
           >
-            {/* Search Icon (hide on hover) */}
-            {!searchHovered && (
-              <Search className="text-white w-5 h-5 mb-3 cursor-pointer hover:text-amber-800" />
-            )}
-
-            {/* Animated Input */}
+            <button
+              type="button"
+              onClick={handleSearchToggle}
+              aria-label={isSearchOpen ? "Close search" : "Open search"}
+              className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
+            >
+              <Search className="h-5 w-5" />
+            </button>
             <motion.input
               type="text"
               placeholder="Search"
               initial={{ width: 0, opacity: 0 }}
               animate={{
-                width: searchHovered ? 180 : 0,
-                opacity: searchHovered ? 1 : 0,
-                marginLeft: searchHovered ? 8 : 0,
+                width: isSearchOpen ? 200 : 0,
+                opacity: isSearchOpen ? 1 : 0,
+                marginLeft: isSearchOpen ? 12 : 0,
               }}
-              transition={{ duration: 0.5 }}
-              className="h-8 w-60 border-b-2 border-gray-400 text-white px-2 focus:outline-none placeholder-gray-300 bg-[#4e4848]"
+              transition={{ duration: 0.3 }}
+              onFocus={() => setIsSearchOpen(true)}
+              onBlur={handleSearchBlur}
+              className="h-9 rounded-full border border-white/40 bg-white/10 px-3 text-sm text-white placeholder-white/70 outline-none backdrop-blur"
+              style={{ pointerEvents: isSearchOpen ? "auto" : "none" }}
             />
           </div>
 
           <ProfilePopup />
-          <Link to="/wishlist">
-            <Heart className="text-white w-5 h-5 cursor-pointer hover:text-amber-800" />
+
+          <button
+            type="button"
+            className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
+            aria-label="View wishlist"
+          >
+            <Heart className="h-5 w-5" />
+          </button>
+
+          <Link
+            to="/checkout"
+            className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
+            aria-label="View cart"
+          >
+            <ShoppingBag className="h-5 w-5" />
           </Link>
-          <Link to="/cart">
-            <ShoppingBag className="text-white w-5 h-5 cursor-pointer hover:text-amber-800" />
-          </Link>
+
+          <button
+            type="button"
+            className="rounded-full p-2 text-white transition-colors hover:text-amber-300 lg:hidden"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
-    </div>
+
+      {isMobileMenuOpen && (
+        <div className="border-t border-white/10 bg-[#37312F] lg:hidden">
+          <div className="flex flex-col gap-4 px-4 py-6 text-sm font-medium text-white">
+            <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-2">
+              <Search className="h-4 w-4 text-white/70" />
+              <input
+                type="text"
+                placeholder="Search for products"
+                className="flex-1 bg-transparent text-white placeholder-white/60 outline-none"
+              />
+            </div>
+
+            {mobileLinks.map(({ label, to }) => (
+              <Link
+                key={`mobile-${label}`}
+                to={to}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="uppercase tracking-wide transition hover:text-amber-300"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
