@@ -14,6 +14,10 @@ import Confirmation from "./componets/Confirmation.jsx";
 import SellerRegister from "./componets/SellerRegister.js";
 import SideBar from "./componets/SideBar.js";
 import AddToCart from "./componets/AddToCart.js";
+import { NotificationProvider } from "./reusableComponent/NotificationProvider.js";
+import WishList from "./componets/WishList.js";
+import AddressPage from "./componets/AddressPage.js";
+// import OrderDetails from "./componets/OrderDetails.js";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -22,8 +26,8 @@ function Layout({ children }) {
   // const isShopPage = location.pathname === "/shop";
   // const isHomePage = location.pathname === "/";
 
-  const isShopPage = ["/shop", "/login", "/account", "/checkout"].includes(location.pathname) || location.pathname.startsWith("/product");
-  const isHomePage = ["/", "/login", "/account", "/shop", "/checkout"].includes(location.pathname) || location.pathname.startsWith("/product")
+  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/cart/address","/cart/order"].includes(location.pathname) || location.pathname.startsWith("/product");
+  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/cart/address","/cart/order"].includes(location.pathname) || location.pathname.startsWith("/product")
 
   return (
     <div className="flex flex-col h-screen">
@@ -43,6 +47,7 @@ function Layout({ children }) {
 
 function App() {
   return (
+    <NotificationProvider>
     <Router>
       <Layout>
         <Routes>
@@ -55,12 +60,16 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/confirmation" element={<Confirmation />} />
-          <Route path="/checkout" element={<AddToCart />} />
+          <Route path="/cart" element={<AddToCart />} />
+          <Route path="/wishlist" element={<WishList />} />
+          <Route path="/cart/address" element={<AddressPage />} />
+          {/* <Route path="/cart/order" element={<OrderDetails />} /> */}
+
           <Route path="*" element={<PageNotFount />} />
         </Routes>
       </Layout>
-
     </Router>
+    </NotificationProvider>
   );
 }
 
