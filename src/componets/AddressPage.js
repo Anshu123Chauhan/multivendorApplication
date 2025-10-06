@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
+import { useNavigate } from "react-router";
 
 export default function AddressPage() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -171,6 +173,74 @@ export default function AddressPage() {
             alert("Failed to remove address. Please try again.");
         }
     };
+
+ const handlePlaceOrder = async () => {
+  if (!products.length) {
+    alert("No items in the cart.");
+    return;
+  }
+
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user?.token) {
+      alert("Please login to place an order.");
+      return;
+    }
+
+    // ✅ Get address from state (first address le rahe hain for demo)
+    const selectedAddress = addresses.length > 0 ? addresses[0] : null;
+    if (!selectedAddress) {
+      alert("Please add a delivery address.");
+      return;
+    }
+
+    const payload = {
+      orderNumber: new Date().getTime().toString(), // unique order number
+      items: products.map((item) => ({
+        sellerId: item.parent_id,     // seller id
+        productId: item.productId,    // product id
+        name: item.name,              // ✅ product name
+        qty: String(item.quantity),   // ✅ quantity as string
+        price: String(item.price),    // ✅ price as string
+      })),
+      shippingAddress: {
+        label: "self",
+        recipientName: selectedAddress.name,
+        phone: selectedAddress.phone,
+        street: selectedAddress.street,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        country: selectedAddress.country,
+        pincode: selectedAddress.postalCode,
+      },
+      paymentMethod: "cod",
+      subtotal: String(totalPrice),
+      shippingMethod: "standard",
+      shippingCost: "0",
+      total: String(totalPrice),
+    };
+
+    const response = await axios.post(
+      "http://localhost:5000/api/ecommerce/order/place",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
+
+    alert("Order placed successfully!");
+    navigate("/payment")
+    console.log("Order Response:", response.data);
+  } catch (error) {
+    console.error("Failed to place order:", error.response?.data || error.message);
+    alert("Failed to place order. Please try again.");
+  }
+};
+
+
+
 
 
     return (
@@ -535,12 +605,15 @@ export default function AddressPage() {
                             <span>₹483</span>
                         </div>
                     </div>
-
                     {!showForm && (
-                        <button className="mt-3 w-full bg-[#37312F] text-white py-1 hover:opacity-90 transition font-medium text-sm">
+                        <button
+                            onClick={handlePlaceOrder}
+                            className="mt-3 w-full bg-[#37312F] text-white py-1 hover:opacity-90 transition font-medium text-sm"
+                        >
                             CONTINUE
                         </button>
                     )}
+
                 </div>
 
             </div>

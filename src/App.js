@@ -18,6 +18,7 @@ import { NotificationProvider } from "./reusableComponent/NotificationProvider.j
 import WishList from "./componets/WishList.js";
 import AddressPage from "./componets/AddressPage.js";
 import OrderSummary from "./componets/OrderSummary";
+import PaymentPage from "./componets/PaymentPage.js";
 // import OrderDetails from "./componets/OrderDetails.js";
 
 function Layout({ children }) {
@@ -27,8 +28,8 @@ function Layout({ children }) {
   // const isShopPage = location.pathname === "/shop";
   // const isHomePage = location.pathname === "/";
 
-  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/cart/address","/cart/order","/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product");
-  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/cart/address","/cart/order","/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product")
+  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product");
+  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary"].includes(location.pathname) || location.pathname.startsWith("/product")
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,10 +64,9 @@ function App() {
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/cart" element={<AddToCart />} />
           <Route path="/wishlist" element={<WishList />} />
-          <Route path="/cart/address" element={<AddressPage />} />
+          <Route path="/checkout" element={<AddressPage />} />
           <Route path="/order-summary" element={<OrderSummary />} />
-          {/* <Route path="/cart/order" element={<OrderDetails />} /> */}
-
+          <Route path="/payment" element={<PaymentPage />} />
           <Route path="*" element={<PageNotFount />} />
         </Routes>
       </Layout>

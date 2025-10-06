@@ -389,7 +389,7 @@ export default function OrderSummary() {
                     />
                     <div>
                       <p className="text-sm font-semibold text-[#2F251F]">
-                        {address.name} · {address.phone}
+                        {address.name} ï¿½ {address.phone}
                       </p>
                       <p className="text-sm text-gray-600">
                         {address.street}

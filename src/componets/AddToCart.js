@@ -133,7 +133,7 @@ export default function AddToCart() {
     );
 
   const proceedToCheckout = () => {
-    navigate("/cart/address")
+    navigate("/checkout")
     // alert("Proceeding to checkout...");
   };
 
