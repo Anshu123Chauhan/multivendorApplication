@@ -3,6 +3,7 @@ import { Search, User, Heart, ShoppingBag } from "lucide-react";
 // Swiper core and required modules
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
+import HeroBanner from "./HeroBanner";
 
 // Import Swiper styles
 import "swiper/css";
@@ -99,34 +100,7 @@ export default function HeroPage() {
 
   return (
     <>
-      <div className="relative w-full h-screen bg-gray-900 text-white">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <video
-            src="https://cdn.pixabay.com/video/2015/11/10/1309-145351537_medium.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative flex flex-col items-center justify-end h-full z-10 pb-20">
-          <h2 className="text-4xl mb-4 font-nunito">NEW FOR YOU</h2>
-          <div className="flex space-x-6">
-            <button className="font-nunito bg-[#37312F] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
-              FORMALS
-            </button>
-            <button className="font-nunito bg-[#37312F] text-white px-6 py-1 rounded-lg shadow-lg hover:bg-white hover:!text-black transition-colors duration-300">
-              CASUALS
-            </button>
-          </div>
-        </div>
-
-      </div>
+      <HeroBanner />
       
       <OffersBanner />
 
