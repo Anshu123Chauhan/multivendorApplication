@@ -122,16 +122,16 @@ export default function Header({ isShopPage }) {
 
           <ProfilePopup />
 
-          <button
-            type="button"
+          <Link
+            to="/wishlist"
             className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
             aria-label="View wishlist"
           >
             <Heart className="h-5 w-5" />
-          </button>
+          </Link>
 
           <Link
-            to="/checkout"
+            to="/cart"
             className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
             aria-label="View cart"
           >
