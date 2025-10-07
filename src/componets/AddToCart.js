@@ -5,6 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import { useNotification } from "../reusableComponent/NotificationProvider";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
+import { apiurl } from "../config/config";
 
 export default function AddToCart() {
   const { showNotification } = useNotification();
@@ -22,7 +23,7 @@ export default function AddToCart() {
       if (!user?.token) return alert("Please login!");
 
       await axios.put(
-        "http://localhost:5000/api/ecommerce/cart/update",
+        `${apiurl}/ecommerce/cart/update`,
         {
           productId: product.productId,
           quantity: newQty,
@@ -42,7 +43,7 @@ export default function AddToCart() {
     try {
       if (!user?.token) return showNotification("Please login!", "success");
 
-      await axios.delete("http://localhost:5000/api/ecommerce/cart/remove", {
+      await axios.delete(`${apiurl}/ecommerce/cart/remove`, {
         headers: { Authorization: user.token },
         data: {
            productId: product.productId, 
@@ -65,7 +66,7 @@ export default function AddToCart() {
     try {
       if (!user?.token) return showNotification("Please login!", "success");
 
-      await axios.delete("http://localhost:5000/api/ecommerce/cart/clear", {
+      await axios.delete(`${apiurl}/ecommerce/cart/clear`, {
         headers: { Authorization: user.token },
       });
 
@@ -84,7 +85,7 @@ export default function AddToCart() {
 
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/ecommerce/cart/list",
+          `${apiurl}/ecommerce/cart/list`,
           { headers: { Authorization: user.token } }
         );
 
@@ -265,6 +266,7 @@ export default function AddToCart() {
         </div>
 
         {/* RIGHT: Order Summary */}
+        {products.length>0 &&
         <aside className="bg-gray-50 rounded-lg p-4 shadow-sm h-fit">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Price Details</h3>
@@ -300,7 +302,7 @@ export default function AddToCart() {
             Continue
             {/* Place Order — ₹{grandTotal.toFixed(0)} */}
           </button>
-        </aside>
+        </aside>}
       </div>
     </div>
   );

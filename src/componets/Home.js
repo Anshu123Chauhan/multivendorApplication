@@ -1,69 +1,312 @@
-import React, { useState } from "react";
-import { Search, User, Heart, ShoppingBag } from "lucide-react";
+import React, { useEffect, useState } from "react";
 // Swiper core and required modules
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import HeroBanner from "./HeroBanner";
+import axios from "axios";
+import { apiurl } from "../config/config";
+import { Link } from "react-router-dom";
 
 // Import Swiper styles
 import "swiper/css";
 import OffersBanner from "./OffersBanner";
+
+const FALLBACK_IMAGE = "https://via.placeholder.com/600x800.png?text=ENS";
+
+const getNumericValue = (value) => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const pickFirstNumeric = (...values) => {
+  for (const value of values) {
+    const numeric = getNumericValue(value);
+    if (numeric !== null) {
+      return numeric;
+    }
+  }
+  return null;
+};
+
+const parseDateValue = (value) => {
+  if (!value) {
+    return null;
+  }
+  if (value instanceof Date) {
+    const time = value.getTime();
+    return Number.isFinite(time) ? time : null;
+  }
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === "string") {
+    const time = Date.parse(value);
+    return Number.isFinite(time) ? time : null;
+  }
+  return null;
+};
+
+const getCreatedTimestamp = (product) => {
+  const fields = [
+    product?.createdAt,
+    product?.updatedAt,
+    product?.publishedAt,
+    product?.createdOn,
+    product?.addedAt,
+  ];
+
+  for (const field of fields) {
+    const parsed = parseDateValue(field);
+    if (parsed !== null) {
+      return parsed;
+    }
+  }
+
+  return 0;
+};
+
+const getSaleScore = (product) => {
+  const fields = [
+    product?.sold,
+    product?.salesCount,
+    product?.totalOrders,
+    product?.orderCount,
+    product?.popularity,
+    product?.quantitySold,
+  ];
+
+  for (const field of fields) {
+    const numeric = getNumericValue(field);
+    if (numeric !== null) {
+      return numeric;
+    }
+  }
+
+  return 0;
+};
+
+const extractImageFromEntry = (entry) => {
+  if (!entry) {
+    return null;
+  }
+  if (typeof entry === "string") {
+    return entry.trim() ? entry : null;
+  }
+  if (typeof entry === "object") {
+    return (
+      entry.url ??
+      entry.src ??
+      entry.secure_url ??
+      entry.Location ??
+      entry.location ??
+      entry.imageUrl ??
+      entry.preview ??
+      null
+    );
+  }
+  return null;
+};
+
+const resolvePrimaryImage = (product) => {
+  const candidates = [];
+
+  if (product?.thumbnail) candidates.push(product.thumbnail);
+  if (product?.image) candidates.push(product.image);
+  if (product?.featuredImage) candidates.push(product.featuredImage);
+  if (Array.isArray(product?.images)) {
+    candidates.push(...product.images);
+  }
+
+  if (Array.isArray(product?.variants)) {
+    for (const variant of product.variants) {
+      if (variant?.isDeleted) continue;
+      if (variant?.thumbnail) candidates.push(variant.thumbnail);
+      if (Array.isArray(variant?.images)) {
+        candidates.push(...variant.images);
+      }
+    }
+  }
+
+  for (const entry of candidates) {
+    const image = extractImageFromEntry(entry);
+    if (image) {
+      return image;
+    }
+  }
+
+  return FALLBACK_IMAGE;
+};
+
+const derivePrice = (product) => {
+  const directPrice = pickFirstNumeric(
+    product?.price?.max,
+    product?.price?.value,
+    product?.price?.min,
+    product?.sellingPrice,
+    product?.currentPrice,
+    product?.price
+  );
+
+  if (directPrice !== null) {
+    return directPrice;
+  }
+
+  if (Array.isArray(product?.variants)) {
+    for (const variant of product.variants) {
+      if (variant?.isDeleted) continue;
+      const variantPrice = pickFirstNumeric(
+        variant?.price?.max,
+        variant?.price?.value,
+        variant?.price?.min,
+        variant?.sellingPrice,
+        variant?.currentPrice,
+        variant?.price
+      );
+      if (variantPrice !== null) {
+        return variantPrice;
+      }
+    }
+  }
+
+  return null;
+};
+
+const formatCurrency = (value) => {
+  const numeric = getNumericValue(value);
+  if (numeric === null) {
+    return null;
+  }
+
+  return numeric.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
+};
+
+const mapProductForDisplay = (product, tag, index) => {
+  const priceValue = derivePrice(product);
+  const productId =
+    product?._id ??
+    product?.id ??
+    product?.slug ??
+    product?.productId ??
+    product?.sku ??
+    `${tag}-${index}`;
+
+  return {
+    id: String(productId),
+    name: product?.name ?? product?.title ?? "Product",
+    price: priceValue !== null ? formatCurrency(priceValue) : null,
+    image: resolvePrimaryImage(product),
+    tag,
+  };
+};
+
 export default function HeroPage() {
 
-  const bestsellerProducts = [
-    {
-      id: 1,
-      name: "Off White Crew Neck Solid Sweatshirt",
-      price: "₹ 2,599",
-      image:
-        "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=783&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 3,
-      name: "Black Crew Neck Solid T-Shirt - Roxx",
-      price: "₹ 1,499",
-      image:
-        "https://plus.unsplash.com/premium_photo-1673977133155-3b738590d58e?q=80&w=690&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 2,
-      name: "White Crew Neck Solid T-Shirt - Fly",
-      price: "₹ 1,499",
-      image:
-        "https://plus.unsplash.com/premium_photo-1671576642314-11a11284ea36?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "BEST SELLER",
-    },
-    {
-      id: 4,
-      name: "Black Crew Neck Solid T-Shirt - Zoro",
-      price: "₹ 1,499",
-      image:
-        "https://plus.unsplash.com/premium_photo-1673977132933-2a028c2f05a8?q=80&w=679&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "BEST SELLER",
-    },
-  ];
+  const [bestsellerProducts, setBestsellerProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [activeTab, setActiveTab] = useState("BESTSELLER");
 
-  const newProducts = [
-    {
-      id: 5,
-      name: "Blue Slim Fit Casual Shirt",
-      price: "₹ 1,899",
-      image:
-        "https://plus.unsplash.com/premium_photo-1678218594563-9fe0d16c6838?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "NEW",
-    },
-    {
-      id: 6,
-      name: "Olive Green Polo T-Shirt",
-      price: "₹ 1,299",
-      image:
-        "https://images.unsplash.com/photo-1560769629-975ec94e6a86?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      tag: "NEW",
-    },
-  ];
+  useEffect(() => {
+    let isMounted = true;
 
+    const fetchHomeProducts = async () => {
+      if (!isMounted) {
+        return;
+      }
+
+      setIsLoadingProducts(true);
+
+      try {
+        const response = await axios.post(`${apiurl}/ecommerce/product/listing`, {});
+        const serverProducts = Array.isArray(response?.data?.products)
+          ? response.data.products
+          : [];
+
+        const availableProducts = serverProducts.filter(
+          (product) => product && !product?.isDeleted
+        );
+
+        const sanitizedProducts =
+          availableProducts.length > 0 ? availableProducts : serverProducts;
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (sanitizedProducts.length === 0) {
+          setNewProducts([]);
+          setBestsellerProducts([]);
+          return;
+        }
+
+        const sortedByDate = [...sanitizedProducts].sort(
+          (a, b) => getCreatedTimestamp(b) - getCreatedTimestamp(a)
+        );
+
+        const latestProducts = sortedByDate.slice(0, 4);
+        const latestIds = new Set(
+          latestProducts
+            .map((product) => product?._id ?? product?.id)
+            .filter(Boolean)
+        );
+
+        const remainingProducts = sortedByDate.filter((product) => {
+          const identifier = product?._id ?? product?.id;
+          return identifier ? !latestIds.has(identifier) : true;
+        });
+
+        const bestSource =
+          remainingProducts.length >= 4 ? remainingProducts : sortedByDate;
+
+        const bestCandidates = [...bestSource]
+          .sort((a, b) => getSaleScore(b) - getSaleScore(a))
+          .slice(0, 4);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setNewProducts(
+          latestProducts.map((product, index) =>
+            mapProductForDisplay(product, "NEW", index)
+          )
+        );
+        setBestsellerProducts(
+          bestCandidates.map((product, index) =>
+            mapProductForDisplay(product, "BEST SELLER", index)
+          )
+        );
+      } catch (error) {
+        console.error("Error fetching home products:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingProducts(false);
+        }
+      }
+    };
+
+    fetchHomeProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const products =
+    activeTab === "BESTSELLER" ? bestsellerProducts : newProducts;
   const items = [
     "https://images.unsplash.com/photo-1610555423081-85ec0b8eabac?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://plus.unsplash.com/premium_photo-1673977134363-c86a9d5dcafa?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -93,10 +336,6 @@ export default function HeroPage() {
       desc: "If you’ve ever stood in front of your wardrobe on a rainy weekday wondering, “What exactly counts...",
     },
   ];
-
-  const [activeTab, setActiveTab] = useState("BESTSELLER");
-  const products =
-    activeTab === "BESTSELLER" ? bestsellerProducts : newProducts;
 
   return (
     <>
@@ -134,35 +373,50 @@ export default function HeroPage() {
 
         {/* Product Grid */}
         <div className="max-w-full mx-auto px-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="group overflow-hidden transition"
-            >
-              {/* Image Section */}
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {product.tag && (
-                  <span className="absolute bottom-2 right-2 bg-amber-800 text-white text-[10px] px-1 py-[2px] rounded-md shadow">
-                    {product.tag}
-                  </span>
-                )}
-              </div>
+          {isLoadingProducts ? (
+            <p className="col-span-full text-center text-sm text-gray-500">
+              Loading products...
+            </p>
+          ) : products.length === 0 ? (
+            <p className="col-span-full text-center text-sm text-gray-500">
+              Products coming soon.
+            </p>
+          ) : (
+            products.map((product) => (
+              <div
+                key={product.id}
+                className="group overflow-hidden transition"
+              >
+                {/* Image Section */}
+                <Link to={`/product/${product.id}`}>
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {product.tag && (
+                    <span className="absolute bottom-2 right-2 bg-amber-800 text-white text-[10px] px-1 py-[2px] rounded-md shadow">
+                      {product.tag}
+                    </span>
+                  )}
+                </div>
 
-              {/* Product Info */}
-              <div className="py-2 text-left">
-                <p className="text-[13px] font-medium text-gray-700">
-                  {product.name}
-                </p>
+                {/* Product Info */}
+                <div className="py-2 text-left">
+                  <p className="text-[13px] font-medium text-gray-700">
+                    {product.name}
+                  </p>
 
-                <p className="text-[12px] font-semibold truncate leading-none">{product.price}</p>
+                  <p className="text-[12px] font-semibold truncate leading-none">
+                    {product.price ?? "Price unavailable"}
+                  </p>
+                </div>
+                </Link>
               </div>
-            </div>
-          ))}
+            ))
+          )}
+
         </div>
 
         {/* View All Button */}

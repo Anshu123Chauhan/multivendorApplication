@@ -5,7 +5,7 @@ import AnimatePage from "../animation/AnimatePage";
 import SizeChartModal from "./SizeChartModal";
 import { useNavigate } from "react-router-dom";
 import { use } from "react";
-
+import { apiurl } from "../config/config";
 export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -45,7 +45,7 @@ export const ProductDetails = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:5000/api/ecommerce/cart/add",
+        `${apiurl}/ecommerce/cart/add`,
         payload,
         {
           headers: {
@@ -83,7 +83,7 @@ export const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/ecommerce/product/${id}`);
+        const response = await axios.get(`${apiurl}/ecommerce/product/${id}`);
         const data = response.data;
         setProduct(data);
 
@@ -159,11 +159,11 @@ export const ProductDetails = () => {
           </div>
 
           {/* Main Image */}
-          <div className="flex justify-center">
+          <div className="flex justify-center w-[40%]">
             <img
               src={selectedImage || product.images?.[0] || ""}
               alt={product.name}
-              className="max-h-[500px] object-contain"
+              className="max-h-[500px] object-cover"
             />
           </div>
 
@@ -363,173 +363,3 @@ export const ProductDetails = () => {
 
 
 
-
-
-
-// import { React, useState, useEffect } from "react";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-// import AnimatePage from "../animation/AnimatePage";
-// import SizeChartModal from "./SizeChartModal";
-
-// export const ProductDetails = () => {
-//   const { id } = useParams(); // get product ID from route
-//   const [product, setProduct] = useState(null); // store fetched product
-//   const [open, setOpen] = useState(false);
-//   console.log("jjjjjjjjjj", id)
-
-//   useEffect(() => {
-//     const fetchProduct = async () => {
-//       try {
-//         const response = await axios.get(
-//           `http://localhost:5000/api/ecommerce/product/${id}`
-//         );
-//         setProduct(response.data);
-//       } catch (error) {
-//         console.error("Error fetching product:", error);
-//       }
-//     };
-
-//     fetchProduct();
-//   }, [id]);
-
-//   if (!product) {
-//     return <p className="text-center mt-10">Loading...</p>;
-//   }
-
-//   console.log(product)
-//   return (
-//     <AnimatePage>
-//       <SizeChartModal open={open} onClose={() => setOpen(false)} />
-//       <div className="bg-gray-50 py-6 font-sans">
-//         {/* Using the API product data but keeping the UI exactly same */}
-//         <div className="w-full px-24 py-4 flex gap-6">
-//           {/* LEFT IMAGE SECTION */}
-//           <div className="flex gap-4 w-1/2">
-//             {/* Thumbnails */}
-//             <div className="flex flex-col gap-3 overflow-y-auto bg-gray-50">
-//               {product.variants?.map((variant, i) => (
-//                 <div
-//                   key={i}
-//                   className="p-1 cursor-pointer border border-gray-300 hover:border-amber-800"
-//                 >
-//                   <img
-//                     src={variant.images}
-//                     alt={variant.sku}
-//                     className="w-16 h-20 object-cover"
-//                   />
-//                 </div>
-//               ))}
-
-//             </div>
-
-//             {/* Main Image */}
-//             <div className="flex-1 border flex items-center justify-center">
-//               <img
-//                 src={product.variants?.[0]?.images[0] || product.images?.[0] || ""}
-//                 alt={product.name}
-//                 className="max-h-[500px] object-contain"
-//               />
-//             </div>
-//           </div>
-
-//           {/* RIGHT DETAILS SECTION */}
-//           <div className="w-1/2 bg-gray-50 text-[#37312F] p-6 text-left">
-//             {/* Product Name */}
-//             <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
-
-//             {/* Description */}
-//             <p className="text-sm text-[#37312F] mb-2">
-//               {product.description ||
-//                 "This is a high-quality product designed for comfort and durability."}
-//             </p>
-
-//             {/* Price (keeping static values as before) */}
-//             <div className="mb-2">
-//               <div className="flex items-baseline gap-3 mt-2">
-//                 <span className="text-2xl font-bold text-gray-800">₹2,079</span>
-//                 <span className="line-through text-gray-500">₹3,199</span>
-//                 <span className="text-green-600 font-semibold">35% off</span>
-//               </div>
-//             </div>
-
-//             {/* Reviews */}
-//             <div className="flex items-center gap-2 mb-4">
-//               <span className="bg-amber-800 text-white px-2 py-0.5 rounded text-sm font-medium">
-//                 4★
-//               </span>
-//               <span className="text-sm">2,817 ratings and 179 reviews</span>
-//             </div>
-
-//             {/* Color Options */}
-//             <div className="mb-4">
-//               <p className="font-medium mb-2 text-left">Color</p>
-//               <div className="flex gap-3">
-//                 {["Black", "Blue", "Gray"].map((color) => (
-//                   <button
-//                     key={color}
-//                     className="border rounded px-4 py-1 text-sm hover:border-blue-600"
-//                   >
-//                     {color}
-//                   </button>
-//                 ))}
-//               </div>
-//             </div>
-
-//             {/* Size Options */}
-//             <div className="mb-4">
-//               <p className="font-medium mb-2 text-left">Size</p>
-//               <div className="flex gap-3 flex-wrap">
-//                 {["28", "30", "32", "34", "36", "38"].map((size) => (
-//                   <button
-//                     key={size}
-//                     className="border rounded px-4 py-1 text-sm hover:border-blue-600"
-//                   >
-//                     {size}
-//                   </button>
-//                 ))}
-//                 <span
-//                   className="text-blue-600 underline cursor-pointer"
-//                   onClick={() => setOpen(true)}
-//                 >
-//                   Size Chart
-//                 </span>
-//               </div>
-//             </div>
-
-//             {/* Offers */}
-//             <div className="mb-4">
-//               <p className="font-medium mb-2 text-left">Available offers</p>
-//               <ul className="list-disc list-outside pl-5 text-sm space-y-1 text-[#37312F] text-left">
-//                 <li>Bank Offer 10% Off on Supermoney UPI. Max discount of ₹50.</li>
-//                 <li>5% Cashback on Flipkart SBI Credit Card upto ₹4,000</li>
-//                 <li>5% Cashback on Axis Bank Flipkart Debit Card</li>
-//               </ul>
-//             </div>
-
-//             {/* Delivery */}
-//             <div className="mb-6 text-left">
-//               <p className="font-medium mb-2">Deliver to</p>
-//               <input
-//                 type="text"
-//                 placeholder="Enter pincode"
-//                 className="border rounded px-3 py-2 w-60 focus:outline-none focus:ring-2 focus:ring-amber-800"
-//               />
-//               <p className="text-sm mt-2">Expected delivery by 22 Sep, Monday</p>
-//             </div>
-
-//             {/* Buttons */}
-//             <div className="flex gap-4 mt-8">
-//               <button className="bg-[#37312F] text-white px-8 py-3 rounded font-semibold hover:bg-[#675e5b] transition">
-//                 Add to Cart
-//               </button>
-//               <button className="bg-amber-700 text-white px-8 py-3 rounded font-semibold hover:bg-amber-600 transition">
-//                 Buy Now
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </AnimatePage>
-//   );
-// };

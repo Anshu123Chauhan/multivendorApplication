@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { CreditCard, Smartphone, Banknote, Wallet, XCircle, CheckCircle } from "lucide-react";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 import { useNavigate } from "react-router";
+import {apiurl} from "../config/config"
 
 export default function AddressPage() {
 
@@ -86,7 +87,7 @@ export default function AddressPage() {
             if (!user?.token) return;
 
             const response = await axios.get(
-                "http://localhost:5000/api/ecommerce/customer/address/list",
+                `${apiurl}/ecommerce/customer/address/list`,
                 { headers: { Authorization: user.token } }
             );
 
@@ -110,7 +111,7 @@ export default function AddressPage() {
 
             try {
                 const response = await axios.get(
-                    "http://localhost:5000/api/ecommerce/cart/list",
+                    `${apiurl}/ecommerce/cart/list`,
                     { headers: { Authorization: user.token } }
                 );
 
@@ -144,7 +145,7 @@ export default function AddressPage() {
             }
 
             const response = await axios.post(
-                "http://localhost:5000/api/ecommerce/customer/address/add",
+                `${apiurl}/ecommerce/customer/address/add`,
                 formData,
                 {
                     headers: { Authorization: user.token },
@@ -198,7 +199,7 @@ export default function AddressPage() {
             }
 
             await axios.delete(
-                `http://localhost:5000/api/ecommerce/customer/address/remove/${id}`,
+                `${apiurl}/ecommerce/customer/address/remove/${id}`,
                 {
                     headers: { Authorization: user.token },
                 }
@@ -262,7 +263,7 @@ export default function AddressPage() {
             };
 
             const response = await axios.post(
-                "http://localhost:5000/api/ecommerce/order/place",
+                `${apiurl}/ecommerce/order/place`,
                 payload,
                 {
                     headers: {
