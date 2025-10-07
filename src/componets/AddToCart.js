@@ -44,7 +44,10 @@ export default function AddToCart() {
 
       await axios.delete("http://localhost:5000/api/ecommerce/cart/remove", {
         headers: { Authorization: user.token },
-        data: { productId: product.productId },
+        data: {
+           productId: product.productId, 
+           variant: product.variant
+          },
       });
 
       setProducts((prev) =>
