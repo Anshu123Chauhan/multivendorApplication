@@ -305,12 +305,17 @@ export const ProductDetails = () => {
             {/* Buttons (Static) */}
             <div className="flex space-x-3 mt-6">
               {stock > 0 ? (
+                <>
                 <button
                   onClick={handleAddToCart}
                   className="bg-amber-700 text-white px-4 py-2 whitespace-nowrap text-sm font-medium shadow hover:bg-amber-800 transition"
                 >
                   Add to Cart
                 </button>
+                <button className="border border-amber-700 text-amber-700 px-4 py-2 whitespace-nowrap text-sm font-medium hover:bg-[#c7c7c7] transition">
+                  Buy Now
+                </button>
+              </>
               ) : (
                 <button
                   disabled
@@ -319,9 +324,7 @@ export const ProductDetails = () => {
                   Out of Stock
                 </button>
               )}
-              <button className="border border-amber-700 text-amber-700 px-4 py-2 whitespace-nowrap text-sm font-medium hover:bg-[#c7c7c7] transition">
-                Buy Now
-              </button>
+             
               <button
                 className="text-[#37312F] text-sm underline hover:text-[#37312F] whitespace-nowrap"
                 onClick={() => setOpen(true)}
