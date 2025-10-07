@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import React from "react";
 import Header from "./componets/Header";
 import Contact from "./componets/Contact";
-import Cart from "./componets/Cart";
 import PageNotFount from "./reusableComponent/PageNotFound";
 import Footer from "./componets/Footer";
 import Home from "./componets/Home";
@@ -57,7 +56,6 @@ function App() {
           <Route path="/shop" element={<Shop />} />
           <Route path="/contactUs" element={<Contact />} />
           <Route path="/sellerRegister" element={<SellerRegister />} />
-          <Route path="/card" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
           <Route path="/product/:id" element={<ProductDetails />} />

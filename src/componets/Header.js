@@ -6,9 +6,10 @@ import ProfilePopup from "../reusableComponent/ProfilePopup";
 import MenCollections from "./MenCollections";
 
 const navLinks = [
+  { label: "Home", to: "/" },
+  { label: "Men", to: "/shop" },
   { label: "Women", to: "/shop" },
   { label: "Kids", to: "/shop" },
-  { label: "Home", to: "/shop" },
   { label: "Beauty", to: "/shop" },
   { label: "Electronics", to: "/shop" },
 ];
@@ -77,7 +78,7 @@ export default function Header({ isShopPage }) {
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-white lg:flex">
-          <MenCollections />
+          {/* <MenCollections /> */}
           {navLinks.map(({ label, to }) => (
             <Link
               key={label}

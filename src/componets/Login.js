@@ -4,12 +4,12 @@ import glogo from '../../src/images/glogo.jpg'
 import handring from '../../src/images/handring.jpg'
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // use react-router-dom
-
+import { apiurl } from "../config/config";
 export default function AuthPage() {
   const navigate = useNavigate();
 
   const api = axios.create({
-    baseURL: "http://localhost:5000/api/ecommerce",
+    baseURL: `${apiurl}/ecommerce`,
   });
 
   const [isLogin, setIsLogin] = useState(true);

@@ -102,7 +102,7 @@ function MenCollections() {
                 to="/shop"
                 className="text-white text-sm md:text-base cursor-pointer hover:text-amber-800"
             >
-                Men
+                MEN
             </Link>
 
             {/* Popup */}

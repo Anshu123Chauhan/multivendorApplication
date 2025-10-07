@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { User, LogOut, Lock, Unlock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { apiurl } from "../config/config";
 
 export default function ProfilePopup() {
     const navigate = useNavigate();
@@ -85,7 +86,7 @@ export default function ProfilePopup() {
 
             // Make API request with Authorization header
             const res = await axios.post(
-                "http://localhost:5000/api/ecommerce/customer/update-password",
+                `${apiurl}/ecommerce/customer/update-password`,
                 {
                     oldPassword: formData.oldPassword,
                     newPassword: formData.newPassword,
