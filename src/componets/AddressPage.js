@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { CreditCard, Smartphone, Banknote, Wallet, XCircle, CheckCircle } from "lucide-react";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 import { useNavigate } from "react-router";
 
 export default function AddressPage() {
+
+
+
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
@@ -24,8 +29,40 @@ export default function AddressPage() {
     const [success, setSuccess] = useState("");
     const [showForm, setShowForm] = useState(true);
     const [addresses, setAddresses] = useState([]);
+    const [showOrderSuccess, setShowOrderSuccess] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [cartId, setCartId] = useState("");
     const user = useMemo(() => JSON.parse(localStorage.getItem("user")), []);
+    let email = "";
+    if (user) {
+        const decoded = jwtDecode(user.token); // decode JWT payload
+        email = decoded.email;
+        console.log(email, "hellooooo")
+    }
+
+
+    const [selectedPayment, setSelectedPayment] = useState("");
+    const [orderPlaced, setOrderPlaced] = useState(false);
+    const [message, setMessage] = useState(""); // for custom messages
+
+    const paymentMethods = [
+        { id: "cod", label: "Cash on Delivery (COD)", icon: <Banknote size={20} /> },
+        { id: "upi", label: "UPI", icon: <Smartphone size={20} /> },
+        { id: "netbanking", label: "Net Banking", icon: <Banknote size={20} /> },
+        { id: "card", label: "Credit / Debit Card", icon: <CreditCard size={20} /> },
+        { id: "wallet", label: "Wallets", icon: <Wallet size={20} /> },
+    ];
+
+    const handlePayment = () => {
+        if (selectedPayment === "cod") {
+            setMessage("Thank You! Your order has been placed successfully. You can pay at delivery.");
+        } else {
+            setMessage("Sorry! This payment method is currently not available.");
+        }
+        setOrderPlaced(true);
+    };
+
+
     const [products, setProducts] = useState([]);
     //   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -77,9 +114,12 @@ export default function AddressPage() {
                     { headers: { Authorization: user.token } }
                 );
 
-                const itemsArray = response.data?.cart?.items || [];
+                const cartData = response.data?.cart || {};
+                const itemsArray = cartData.items || [];
+
                 setProducts(itemsArray);
-                setTotalPrice(response.data?.cart?.totalPrice || 0);
+                setTotalPrice(cartData.totalPrice || 0);
+                setCartId(cartData._id); // ✅ store cart ID for later use
             } catch (error) {
                 console.error("Failed to fetch cart:", error);
                 alert("Failed to fetch cart data.");
@@ -174,70 +214,70 @@ export default function AddressPage() {
         }
     };
 
- const handlePlaceOrder = async () => {
-  if (!products.length) {
-    alert("No items in the cart.");
-    return;
-  }
+    const handlePlaceOrder = async () => {
+        if (!products.length) {
+            alert("No items in the cart.");
+            return;
+        }
 
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user?.token) {
-      alert("Please login to place an order.");
-      return;
-    }
+        try {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user?.token) {
+                alert("Please login to place an order.");
+                return;
+            }
 
-    // ✅ Get address from state (first address le rahe hain for demo)
-    const selectedAddress = addresses.length > 0 ? addresses[0] : null;
-    if (!selectedAddress) {
-      alert("Please add a delivery address.");
-      return;
-    }
+            // ✅ Get address from state (first address le rahe hain for demo)
+            const selectedAddress = addresses.length > 0 ? addresses[0] : null;
+            if (!selectedAddress) {
+                alert("Please add a delivery address.");
+                return;
+            }
 
-    const payload = {
-      orderNumber: new Date().getTime().toString(), // unique order number
-      items: products.map((item) => ({
-        sellerId: item.parent_id,     // seller id
-        productId: item.productId,    // product id
-        name: item.name,              // ✅ product name
-        qty: String(item.quantity),   // ✅ quantity as string
-        price: String(item.price),    // ✅ price as string
-      })),
-      shippingAddress: {
-        label: "self",
-        recipientName: selectedAddress.name,
-        phone: selectedAddress.phone,
-        street: selectedAddress.street,
-        city: selectedAddress.city,
-        state: selectedAddress.state,
-        country: selectedAddress.country,
-        pincode: selectedAddress.postalCode,
-      },
-      paymentMethod: "cod",
-      subtotal: String(totalPrice),
-      shippingMethod: "standard",
-      shippingCost: "0",
-      total: String(totalPrice),
+            const payload = {
+                orderNumber: cartId,
+                items: products.map((item) => ({
+                    sellerId: item.parent_id,     // seller id
+                    productId: item.productId,    // product id
+                    name: item.name,              // ✅ product name
+                    qty: String(item.quantity),   // ✅ quantity as string
+                    price: String(item.price),    // ✅ price as string
+                })),
+                shippingAddress: {
+                    label: "self",
+                    recipientName: selectedAddress.name,
+                    email: email || "",
+                    phone: selectedAddress.phone,
+                    street: selectedAddress.street,
+                    city: selectedAddress.city,
+                    state: selectedAddress.state,
+                    country: selectedAddress.country,
+                    pincode: selectedAddress.postalCode,
+                },
+                paymentMethod: "cod",
+                subtotal: String(totalPrice),
+                shippingMethod: "standard",
+                shippingCost: "0",
+                total: String(totalPrice),
+            };
+
+            const response = await axios.post(
+                "http://localhost:5000/api/ecommerce/order/place",
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+
+            setShowOrderSuccess(true);
+            console.log("Order Response:", response.data);
+        } catch (error) {
+            console.error("Failed to place order:", error.response?.data || error.message);
+            alert("Failed to place order. Please try again.");
+        }
     };
-
-    const response = await axios.post(
-      "http://localhost:5000/api/ecommerce/order/place",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-    );
-
-    alert("Order placed successfully!");
-    navigate("/payment")
-    console.log("Order Response:", response.data);
-  } catch (error) {
-    console.error("Failed to place order:", error.response?.data || error.message);
-    alert("Failed to place order. Please try again.");
-  }
-};
 
 
 
@@ -247,7 +287,7 @@ export default function AddressPage() {
         <div className="min-h-screen bg-gray-50 p-6 flex justify-center">
             <div className="max-w-7xl w-full grid grid-cols-[65%_35%] gap-6">
                 {/* LEFT SIDE */}
-                <div className="bg-white p-6">
+                <div className="bg-white p-6 max-h-[600px] overflow-y-auto">
                     {showForm ? (
                         <>
                             <h2 className="text-xl font-semibold mb-6 border-b pb-2 font-nunito">
@@ -524,12 +564,10 @@ export default function AddressPage() {
                                                         {/* ✅ Product Image */}
                                                         <img
                                                             src={
-                                                                item.variant?.selectedVariant?.images?.[0] ||
-                                                                "https://via.placeholder.com/80"
+                                                                item.variant?.selectedVariant?.images?.[0] || item.image || "https://via.placeholder.com/100"
                                                             }
                                                             alt={item.name}
-                                                            className="w-20 h-20 object-cover border"
-                                                        />
+                                                            className="w-20 h-20 object-cover rounded" />
 
                                                         {/* ✅ Product Details */}
                                                         <div className="flex-1 text-left">
@@ -571,6 +609,124 @@ export default function AddressPage() {
                                             <p className="text-gray-500 text-xs">No items in cart</p>
                                         )}
                                     </div>
+
+                                    {/* ---------------- PAYMENT ---------------- */}
+                                    <div className="mt-6 max-w-5xl mx-auto p-6 bg-white border">
+                                        <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">
+                                            Select Payment Method
+                                        </h2>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Payment Options */}
+                                            <div className="flex flex-col gap-3">
+                                                {paymentMethods.map((method) => (
+                                                    <div
+                                                        key={method.id}
+                                                        onClick={() => setSelectedPayment(method.id)}
+                                                        className={`cursor-pointer border rounded-xl p-4 flex justify-between items-center transition 
+            ${selectedPayment === method.id
+                                                                ? "border-orange-500 bg-orange-50 shadow-sm"
+                                                                : "border-gray-300 hover:border-orange-400"
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            {method.icon}
+                                                            <span className="font-medium">{method.label}</span>
+                                                        </div>
+                                                        {selectedPayment === method.id && (
+                                                            <span className="text-orange-600 font-bold">✓</span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Selected Payment Details */}
+                                            <div className="border rounded-xl p-6 min-h-[300px] flex flex-col justify-center">
+                                                {!selectedPayment ? (
+                                                    <p className="text-gray-500 text-center my-auto">
+                                                        Please select a payment method
+                                                    </p>
+                                                ) : (
+                                                    <div className="space-y-4">
+                                                        {selectedPayment === "upi" && (
+                                                            <div className="space-y-2">
+                                                                <label className="text-gray-700 font-medium">Enter UPI ID</label>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="example@upi"
+                                                                    className="border border-gray-300 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {selectedPayment === "netbanking" && (
+                                                            <div className="space-y-2">
+                                                                <label className="text-gray-700 font-medium">Select Bank</label>
+                                                                <select className="border border-gray-300 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                                    <option>HDFC Bank</option>
+                                                                    <option>ICICI Bank</option>
+                                                                    <option>SBI</option>
+                                                                    <option>Axis Bank</option>
+                                                                    <option>Other Banks</option>
+                                                                </select>
+                                                            </div>
+                                                        )}
+
+                                                        {selectedPayment === "card" && (
+                                                            <div className="space-y-3">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Card Number"
+                                                                    className="border border-gray-300 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                                />
+                                                                <div className="flex gap-3">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="MM/YY"
+                                                                        className="border border-gray-300 rounded-xl p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                                    />
+                                                                    <input
+                                                                        type="password"
+                                                                        placeholder="CVV"
+                                                                        maxLength="3"
+                                                                        className="border border-gray-300 rounded-xl p-3 w-28 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                                    />
+                                                                </div>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Cardholder Name"
+                                                                    className="border border-gray-300 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {selectedPayment === "wallet" && (
+                                                            <div>
+                                                                <p className="font-medium mb-2">Select Wallet</p>
+                                                                <div className="flex gap-3 flex-wrap">
+                                                                    {["PhonePe", "Paytm", "Google Pay", "Mobikwik"].map((wallet) => (
+                                                                        <button
+                                                                            key={wallet}
+                                                                            className="px-4 py-2 border rounded-xl hover:bg-orange-50 transition"
+                                                                        >
+                                                                            {wallet}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {selectedPayment === "cod" && (
+                                                            <p className="text-gray-700 font-medium text-center">
+                                                                Cash on Delivery is selected by default. You can pay when your order arrives.
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </>
 
                             )}
@@ -605,18 +761,48 @@ export default function AddressPage() {
                             <span>₹483</span>
                         </div>
                     </div>
-                    {!showForm && (
-                        <button
-                            onClick={handlePlaceOrder}
-                            className="mt-3 w-full bg-[#37312F] text-white py-1 hover:opacity-90 transition font-medium text-sm"
-                        >
-                            CONTINUE
-                        </button>
-                    )}
+
+                    <button
+                        onClick={handlePlaceOrder}
+                        className="mt-3 w-full bg-[#37312F] text-white py-1 hover:opacity-90 transition font-medium text-sm"
+                    >
+                        Place Order
+                    </button>
+
 
                 </div>
 
             </div>
+
+
+            {showOrderSuccess && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white p-8 h-screen w-full text-center relative flex items-center justify-center">
+                        <div>
+                            {/* Success Icon */}
+                            <CheckCircle className="mx-auto text-green-500 w-16 h-16 mb-4" />
+
+                            {/* Heading */}
+                            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                                Order Placed Successfully!
+                            </h1>
+
+                            {/* Message */}
+                            <p className="text-gray-600 mb-6">
+                                Thank you for your purchase. Your order has been placed and is being processed.
+                            </p>
+
+                            {/* Go to Home Button */}
+                            <button
+                                onClick={() => navigate("/")}
+                                className="w-72 bg-[#37312F] text-white py-2 rounded-lg font-medium hover:opacity-90 transition"
+                            >
+                                Continue Shopping
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
