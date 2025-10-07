@@ -36,7 +36,7 @@ export default function OffersBanner() {
     }, [offers.length]);
 
     return (
-        <section className="py-12 mx-24 bg-gray-50 flex justify-center items-center">
+        <section className="py-12  bg-gray-50 flex justify-center items-center">
             <div className="w-full h-56 perspective overflow-hidden">
                 <div
                     className={`relative w-full h-full ${flip ? "animate-card-flip" : ""

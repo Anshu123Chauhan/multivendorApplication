@@ -343,7 +343,7 @@ export default function HeroPage() {
       
       <OffersBanner />
 
-      <div className="bg-gray-50 py-14">
+      <div className="bg-gray-50 py-8">
         {/* Header */}
         <div className="text-center mb-4">
           <p className="text-xs text-[#37312F] tracking-widest uppercase">
@@ -372,7 +372,7 @@ export default function HeroPage() {
         </div>
 
         {/* Product Grid */}
-        <div className="max-w-full mx-auto px-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="max-w-full mx-auto px-10 sm:px-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {isLoadingProducts ? (
             <p className="col-span-full text-center text-sm text-gray-500">
               Loading products...
@@ -404,11 +404,11 @@ export default function HeroPage() {
 
                 {/* Product Info */}
                 <div className="py-2 text-left">
-                  <p className="text-[13px] font-medium text-gray-700">
+                  <p className="text-lg font-medium text-gray-700">
                     {product.name}
                   </p>
 
-                  <p className="text-[12px] font-semibold truncate leading-none">
+                  <p className="text-lg font-semibold truncate leading-none text-[#2F251F] mb-0">
                     {product.price ?? "Price unavailable"}
                   </p>
                 </div>
@@ -420,7 +420,7 @@ export default function HeroPage() {
         </div>
 
         {/* View All Button */}
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-2">
           <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
             VIEW ALL
           </button>
@@ -429,9 +429,9 @@ export default function HeroPage() {
 
 
 
-      <section className="max-w-full mx-auto px-24 py-12 font-nunito">
+      <section className="max-w-full mx-auto px-10 sm:px-24 py-12 font-nunito">
         {/* Heading */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-2">
           <h2 className="text-2xl md:text-3xl font-bold tracking-wide">
             HOT RIGHT NOW
           </h2>
@@ -483,7 +483,7 @@ export default function HeroPage() {
 
 
       <section className="bg-gray-100 py-14 font-nunito">
-        <div className="max-w-full mx-auto px-24 text-center">
+        <div className="max-w-full mx-auto px-10 sm:px-24 text-center">
           {/* Heading */}
           <h2 className="text-2xl md:text-3xl font-bold mb-3 font-nunito">
             Trendy T-Shirts <span className="font-bold">Starting @ ₹1299</span>
@@ -527,7 +527,7 @@ export default function HeroPage() {
 
 
         <section className="bg-gray-100 py-8">
-      <div className="w-full mx-auto px-24 text-center">
+      <div className="w-full mx-auto px-10 sm:px-24 text-center">
         <p className="text-sm uppercase tracking-wide text-gray-500 mb-2">
           News
         </p>
