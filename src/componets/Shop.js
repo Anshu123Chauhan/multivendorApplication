@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { BsSearch } from "react-icons/bs";
-import { ToastContainer } from "react-toastify";
-import { addToCart, productDetail } from "../feautres/cartSlice";
+import { ToastContainer, toast } from "react-toastify";
+import { productDetail } from "../feautres/cartSlice";
 import { useNavigate } from "react-router";
 import AnimatePage from "../animation/AnimatePage";
 import { FaHeart, FaRegHeart, FaStar } from "react-icons/fa";
@@ -53,6 +53,121 @@ const computeDiscount = (price, mrp) => {
 
   return Math.round(((original - current) / original) * 100);
 };
+const selectVariantSource = (product) => {
+  if (product?.selectedVariant) {
+    return product.selectedVariant;
+  }
+  if (product?.variant) {
+    return product.variant;
+  }
+  if (Array.isArray(product?.variants)) {
+    return (
+      product.variants.find((variant) => variant && !variant.isDeleted) ||
+      product.variants[0]
+    );
+  }
+  return null;
+};
+
+const formatAttributesForWishlist = (variant) => {
+  if (!variant) {
+    return [];
+  }
+
+  const attributes = Array.isArray(variant?.attributes)
+    ? variant.attributes
+    : Array.isArray(variant?.options)
+    ? variant.options
+    : [];
+
+  return attributes
+    .map((attribute) => {
+      const type =
+        attribute?.type ||
+        attribute?.name ||
+        attribute?.key ||
+        attribute?.label ||
+        '';
+      const value =
+        attribute?.value ||
+        attribute?.option ||
+        attribute?.label ||
+        attribute?.name ||
+        '';
+
+      if (!type || !value) {
+        return null;
+      }
+
+      return {
+        type: String(type),
+        value: String(value),
+      };
+    })
+    .filter(Boolean);
+};
+
+const resolveWishlistPrice = (product) => {
+  if (!product) {
+    return null;
+  }
+
+  const candidates = [
+    product?.price?.max,
+    product?.price?.value,
+    product?.price?.min,
+    product?.price?.current,
+    product?.sellingPrice,
+    product?.currentPrice,
+    product?.price,
+  ];
+
+  for (const candidate of candidates) {
+    const numeric = Number(candidate);
+    if (Number.isFinite(numeric) && numeric > 0) {
+      return numeric;
+    }
+  }
+
+  if (Array.isArray(product?.variants)) {
+    for (const variant of product.variants) {
+      const variantPrice = resolveWishlistPrice(variant);
+      if (variantPrice !== null) {
+        return variantPrice;
+      }
+    }
+  }
+
+  return null;
+};
+
+const buildWishlistPayload = (product) => {
+  const productId = product?._id || product?.id || product?.productId;
+  if (!productId) {
+    return null;
+  }
+
+  const variantSource = selectVariantSource(product);
+  const attributes = formatAttributesForWishlist(variantSource);
+
+  const payload = {
+    productId,
+    name: product?.name || product?.title || 'Product',
+    price: resolveWishlistPrice(product) ?? 0,
+    image: getProductImage(product),
+    description:
+      product?.description ||
+      product?.shortDescription ||
+      product?.summary ||
+      '',
+  };
+
+  if (attributes.length > 0) {
+    payload.variant = { attributes };
+  }
+
+  return payload;
+};
 const ITEMS_PER_BATCH = 8;
 
 export default function Shop() {
@@ -62,6 +177,14 @@ export default function Shop() {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_BATCH);
   const sentinelRef = useRef(null);
+  const user = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      return null;
+    }
+  }, []);
 
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -89,8 +212,56 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    const fetchWishlistIds = async () => {
+      if (!user?.token) {
+        setWishlist([]);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${apiurl}/ecommerce/wishlist`, {
+          headers: { Authorization: user.token },
+        });
+
+        const payload = response?.data ?? {};
+        const candidates = [
+          payload?.wishlist?.items,
+          payload?.wishlist,
+          payload?.data?.items,
+          payload?.data,
+          payload?.items,
+          Array.isArray(payload) ? payload : null,
+        ];
+
+        const rawItems = candidates.find(Array.isArray) || [];
+        const ids = rawItems
+          .map((entry) => {
+            if (!entry) {
+              return null;
+            }
+            const product =
+              entry.product ||
+              entry.productDetails ||
+              entry.productInfo ||
+              entry.productData ||
+              entry;
+            const id = entry.productId || product?._id || product?.id;
+            return id ? String(id) : null;
+          })
+          .filter(Boolean);
+
+        setWishlist(Array.from(new Set(ids)));
+      } catch (error) {
+        console.error("Failed to load wishlist ids:", error);
+      }
+    };
+
+    fetchWishlistIds();
+  }, [user?.token]);
+
   const showProductCard = (item) => {
-    const productId = item?._id || item?.id;
+    const productId = (item?._id || item?.id || item?.productId) ? String(item?._id || item?.id || item?.productId) : null;
     if (!productId) {
       return;
     }
@@ -99,14 +270,41 @@ export default function Shop() {
     navigate(`/product/${productId}`);
   };
 
-  const toggleWishlist = (id) => {
-    if (!id) {
+  const toggleWishlist = async (product) => {
+    const productId = product?._id || product?.id || product?.productId;
+    if (!productId) {
       return;
     }
 
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const normalizedId = String(productId);
+
+    if (!user?.token) {
+      toast.error("Please login to save items to your wishlist.");
+      navigate("/login");
+      return;
+    }
+
+    if (wishlist.includes(normalizedId)) {
+      toast.info("This item is already in your wishlist.");
+      return;
+    }
+
+    const payload = buildWishlistPayload(product);
+    if (!payload) {
+      toast.error("Unable to prepare wishlist data for this product.");
+      return;
+    }
+
+    try {
+      await axios.post(`${apiurl}/ecommerce/wishlist/add`, payload, {
+        headers: { Authorization: user.token },
+      });
+      setWishlist((prev) => [...prev, normalizedId]);
+      toast.success("Added to wishlist.");
+    } catch (error) {
+      console.error("Failed to add to wishlist:", error);
+      toast.error("Could not add to wishlist. Please try again.");
+    }
   };
 
   const filterP = (cat) => {
@@ -206,7 +404,7 @@ export default function Shop() {
         {/* Product Grid */}
         <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((item) => {
-            const productId = item?._id || item?.id;
+            const productId = (item?._id || item?.id || item?.productId) ? String(item?._id || item?.id || item?.productId) : null;
             const image = getProductImage(item);
             const price = item?.price.max ?? item?.sellingPrice ?? item?.currentPrice;
             const mrp = item?.lastPrice ?? item?.mrp ?? item?.originalPrice;
@@ -233,10 +431,10 @@ export default function Shop() {
                     type="button"
                     onClick={(event) => {
                       event.stopPropagation();
-                      toggleWishlist(productId);
+                      toggleWishlist(item);
                     }}
                     className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-[#2F251F] backdrop-blur transition hover:bg-white"
-                    aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    aria-label={isWishlisted ? "In wishlist" : "Add to wishlist"}
                   >
                     {isWishlisted ? (
                       <FaHeart className="h-4 w-4" />
@@ -293,21 +491,3 @@ export default function Shop() {
     </AnimatePage>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
