@@ -34,7 +34,7 @@ export default function Footer() {
     <footer className="bg-[#37312F] text-white">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 py-10 sm:px-6 lg:flex-row lg:justify-between lg:px-10 lg:py-14">
         <section className="flex-1 space-y-6">
-          <h2 className="font-nunito text-2xl font-bold">ENS ENTERPRISES</h2>
+          <h2 className="font-nunito text-2xl font-bold">ENS</h2>
 
           <div>
             <h3 className="font-nunito text-lg font-semibold">Our Store</h3>

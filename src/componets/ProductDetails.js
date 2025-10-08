@@ -139,7 +139,7 @@ export const ProductDetails = () => {
     <AnimatePage>
       <div className="bg-gray-50 py-6 font-sans">
         {/* Using the API product data but keeping the UI exactly same */}
-        <div className="w-full px-24 py-4 flex gap-6">
+        <div className="w-full px-0 sm:px-24 py-4 flex flex-col sm:flex-row gap-6 justify-center  sm:justify-start items-center">
           {/* LEFT IMAGE SECTION */}
           <div className="flex flex-col gap-3 overflow-y-auto bg-gray-50">
             {selectedVariant?.images?.map((img, i) => (
@@ -170,7 +170,7 @@ export const ProductDetails = () => {
           </div>
 
           {/* Right - Product Details */}
-          <div className="text-left">
+          <div className="text-left sm:px-0 px-3">
             {/* Product Name */}
             <h1 className="text-xl font-semibold mb-2 text-gray-800">
               {product.name}
