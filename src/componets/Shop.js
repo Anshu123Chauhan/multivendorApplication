@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { BsSearch } from "react-icons/bs";
 import { ToastContainer, toast } from "react-toastify";
+import { useCartWishlist } from "../context/CartWishlistContext";
 import { productDetail } from "../feautres/cartSlice";
 import { useNavigate } from "react-router";
 import AnimatePage from "../animation/AnimatePage";
@@ -187,6 +188,7 @@ export default function Shop() {
   }, []);
 
   const { t } = useTranslation();
+  const { setWishlistCount } = useCartWishlist();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -216,6 +218,7 @@ export default function Shop() {
     const fetchWishlistIds = async () => {
       if (!user?.token) {
         setWishlist([]);
+        setWishlistCount(0);
         return;
       }
 
@@ -251,7 +254,9 @@ export default function Shop() {
           })
           .filter(Boolean);
 
-        setWishlist(Array.from(new Set(ids)));
+        const uniqueIds = Array.from(new Set(ids));
+        setWishlist(uniqueIds);
+        setWishlistCount(uniqueIds.length);
       } catch (error) {
         console.error("Failed to load wishlist ids:", error);
       }
@@ -300,6 +305,7 @@ export default function Shop() {
         headers: { Authorization: user.token },
       });
       setWishlist((prev) => [...prev, normalizedId]);
+      setWishlistCount((prev) => prev + 1);
       toast.success("Added to wishlist.");
     } catch (error) {
       console.error("Failed to add to wishlist:", error);
@@ -491,3 +497,11 @@ export default function Shop() {
     </AnimatePage>
   );
 }
+
+
+
+
+
+
+
+

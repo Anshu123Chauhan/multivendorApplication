@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router";
 import { Heart, Loader2 } from "lucide-react";
 import { apiurl } from "../config/config";
+import { useCartWishlist } from "../context/CartWishlistContext";
 import { useNotification } from "../reusableComponent/NotificationProvider";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 const FALLBACK_IMAGE = "https://via.placeholder.com/600x800.png?text=ENS";
@@ -93,6 +94,7 @@ export default function WishList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { setWishlistCount } = useCartWishlist();
   const [openDialog, setOpenDialog] = useState(false);
 
   const user = useMemo(() => {
@@ -104,9 +106,10 @@ export default function WishList() {
     }
   }, []);
   const fetchWishlist = async () => {
-      if (!user?.token) {
+            if (!user?.token) {
         setItems([]);
         setLoading(false);
+        setWishlistCount(0);
         return;
       }
 
@@ -134,6 +137,7 @@ export default function WishList() {
           .map((entry, index) => normalizeWishlistItem(entry, index));
 
         setItems(sanitized);
+        setWishlistCount(sanitized.length);
       } catch (err) {
         console.error("Failed to fetch wishlist", err);
         setError("Unable to load wishlist right now. Please try again later.");
@@ -142,9 +146,50 @@ export default function WishList() {
       }
     };
   useEffect(() => {
+    const run = async () => {
+      if (!user?.token) {
+        setItems([]);
+        setLoading(false);
+        setWishlistCount(0);
+        return;
+      }
 
-    fetchWishlist();
-  }, [user?.token]);
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await axios.get(`${apiurl}/ecommerce/wishlist`, {
+          headers: { Authorization: user.token },
+        });
+
+        const payload = response?.data ?? {};
+        const candidates = [
+          payload?.wishlist?.items,
+          payload?.wishlist,
+          payload?.data?.items,
+          payload?.data,
+          payload?.items,
+          Array.isArray(payload) ? payload : null,
+        ];
+
+        const rawItems = candidates.find(Array.isArray) || [];
+        const sanitized = rawItems
+          .filter(Boolean)
+          .map((entry, index) => normalizeWishlistItem(entry, index));
+
+        setItems(sanitized);
+        setWishlistCount(sanitized.length);
+      } catch (err) {
+        console.error("Failed to fetch wishlist", err);
+        setError("Unable to load wishlist right now. Please try again later.");
+        setWishlistCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
+  }, [setWishlistCount, user?.token]);
 
   const handleViewProduct = (item) => {
     if (!item?.productId) {
@@ -327,3 +372,8 @@ export default function WishList() {
     </div>
   );
 }
+
+
+
+
+

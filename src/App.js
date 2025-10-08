@@ -1,3 +1,4 @@
+import { CartWishlistProvider } from "./context/CartWishlistContext";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import React from "react";
 import Header from "./componets/Header";
@@ -49,30 +50,31 @@ function Layout({ children }) {
 function App() {
   return (
     <NotificationProvider>
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/contactUs" element={<Contact />} />
-          <Route path="/sellerRegister" element={<SellerRegister />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/confirmation" element={<Confirmation />} />
-          <Route path="/cart" element={<AddToCart />} />
-          <Route path="/wishlist" element={<WishList />} />
-          <Route path="/checkout" element={<AddressPage />} />
-          <Route path="/order-summary" element={<OrderSummary />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="*" element={<PageNotFount />} />
-        </Routes>
-      </Layout>
-    </Router>
+      <CartWishlistProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/contactUs" element={<Contact />} />
+              <Route path="/sellerRegister" element={<SellerRegister />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/confirmation" element={<Confirmation />} />
+              <Route path="/cart" element={<AddToCart />} />
+              <Route path="/wishlist" element={<WishList />} />
+              <Route path="/checkout" element={<AddressPage />} />
+              <Route path="/order-summary" element={<OrderSummary />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="*" element={<PageNotFount />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </CartWishlistProvider>
     </NotificationProvider>
   );
 }
-
 export default App;
 
 
@@ -121,7 +123,7 @@ export default App;
 
 // // ---- Wrapper for layout ----
 // function Layout({ children }) {
-//   const location = useLocation();
+//   const location = useLocyoutation();
 
 //   // routes jahan header/footer nahi chahiye
 //   const hideHeaderFooterRoutes = ["/login", "/account", "/sellerRegister","/shop"];
@@ -139,23 +141,36 @@ export default App;
 
 // function App() {
 //   return (
-//     <Router>
-//       <Layout>
-//         <Routes>
-//           <Route path="/" element={<Home />} />
-//           <Route path="/shop" element={<Shop />} />
-//           <Route path="/contactUs" element={<Contact />} />
-//           <Route path="/sellerRegister" element={<SellerRegister />} />
-//           <Route path="/card" element={<Cart />} />
-//           <Route path="/login" element={<Login />} />
-//           <Route path="/account" element={<Account />} />
-//           <Route path="/productDetails" element={<ProductDetails />} />
-//           <Route path="/confirmation" element={<Confirmation />} />
-//           <Route path="*" element={<PageNotFount />} />
-//         </Routes>
-//       </Layout>
-//     </Router>
+//     <NotificationProvider>
+//       <CartWishlistProvider>
+//         <Router>
+//           <Layout>
+//             <Routes>
+//               <Route path="/" element={<Home />} />
+//               <Route path="/shop" element={<Shop />} />
+//               <Route path="/contactUs" element={<Contact />} />
+//               <Route path="/sellerRegister" element={<SellerRegister />} />
+//               <Route path="/login" element={<Login />} />
+//               <Route path="/account" element={<Account />} />
+//               <Route path="/product/:id" element={<ProductDetails />} />
+//               <Route path="/confirmation" element={<Confirmation />} />
+//               <Route path="/cart" element={<AddToCart />} />
+//               <Route path="/wishlist" element={<WishList />} />
+//               <Route path="/checkout" element={<AddressPage />} />
+//               <Route path="/order-summary" element={<OrderSummary />} />
+//               <Route path="/payment" element={<PaymentPage />} />
+//               <Route path="*" element={<PageNotFount />} />
+//             </Routes>
+//           </Layout>
+//         </Router>
+//       </CartWishlistProvider>
+//     </NotificationProvider>
 //   );
 // }
-
 // export default App;
+
+
+
+
+
+
