@@ -141,7 +141,10 @@ export const ProductDetails = () => {
         {/* Using the API product data but keeping the UI exactly same */}
         <div className="w-full px-0 sm:px-24 py-4 flex flex-col sm:flex-row gap-6 justify-center  sm:justify-start items-center">
           {/* LEFT IMAGE SECTION */}
-          <div className="flex flex-col gap-3 overflow-y-auto bg-gray-50">
+        
+          {/* Main Image */}
+          <div className="flex justify-center w-[40%]">
+            <div className="flex flex-col gap-3 overflow-y-auto bg-gray-50">
             {selectedVariant?.images?.map((img, i) => (
               <div
                 key={i}
@@ -160,8 +163,6 @@ export const ProductDetails = () => {
             ))}
           </div>
 
-          {/* Main Image */}
-          <div className="flex justify-center w-[40%]">
             <img
               src={selectedImage || product.images?.[0] || ""}
               alt={product.name}
