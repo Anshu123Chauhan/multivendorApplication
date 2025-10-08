@@ -135,7 +135,7 @@ export default function Header({ isShopPage }) {
           >
             <Heart className="h-5 w-5" />
             {wishlistCount > 0 ? (
-              <span className="absolute top-[2px] right-[5px] h-[18px] w-[18px] text-center overflow-hidden rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
+              <span className="absolute top-[2px] right-[5px] h-[15px] w-[15px] text-center overflow-hidden rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
                 {displayWishlistCount}
               </span>
             ) : null}
@@ -150,7 +150,7 @@ export default function Header({ isShopPage }) {
           >
             <ShoppingBag className="h-5 w-5" />
             {cartCount > 0 ? (
-              <span className="absolute top-[2px] right-[5px] h-[18px] w-[18px] text-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
+              <span className="absolute top-[2px] right-[5px] h-[15px] w-[15px] text-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
                 {displayCartCount}
               </span>
             ) : null}
