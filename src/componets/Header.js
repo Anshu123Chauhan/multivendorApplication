@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import ProfilePopup from "../reusableComponent/ProfilePopup";
 import { useCartWishlist } from "../context/CartWishlistContext";
@@ -21,6 +21,16 @@ export default function Header({ isShopPage }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+
+const navigate = useNavigate();
+const [searchQuery, setSearchQuery] = useState("");
+
+// Function to handle search
+const handleSearch = async () => {
+  if (!searchQuery.trim()) return; // Do nothing if empty
+  navigate("/search", { state: { query: searchQuery } });
+};
 
   useEffect(() => {
     if (isShopPage) {
@@ -64,11 +74,10 @@ export default function Header({ isShopPage }) {
     setIsSearchOpen(false);
   };
 
-  const headerClasses = `top-0 left-0 w-full z-50 transition-colors duration-500 ${
-    isShopPage
+  const headerClasses = `top-0 left-0 w-full z-50 transition-colors duration-500 ${isShopPage
       ? "bg-[#37312F] shadow-md relative"
       : `fixed ${isScrolled ? "bg-[#37312F] shadow-md" : "bg-transparent"}`
-  }`;
+    }`;
 
   return (
     <header className={headerClasses}>
@@ -99,30 +108,32 @@ export default function Header({ isShopPage }) {
             onMouseEnter={() => setIsSearchOpen(true)}
             onMouseLeave={() => setIsSearchOpen(false)}
           >
+            <motion.input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{
+                scaleX: isSearchOpen ? 1 : 0,
+                opacity: isSearchOpen ? 1 : 0,
+              }}
+              transition={{ duration: 0.3 }}
+              onFocus={() => setIsSearchOpen(true)}
+              onBlur={() => setIsSearchOpen(false)}
+              className="h-9 rounded-full border border-white/40 bg-white/10 px-3 text-sm text-white placeholder-white/70 outline-none backdrop-blur origin-left"
+            />
+
             <button
               type="button"
-              onClick={handleSearchToggle}
-              aria-label={isSearchOpen ? "Close search" : "Open search"}
+              onClick={handleSearch}
+              aria-label="Search"
               className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
             >
               <Search className="h-5 w-5" />
             </button>
-            <motion.input
-              type="text"
-              placeholder="Search"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{
-                width: isSearchOpen ? 200 : 0,
-                opacity: isSearchOpen ? 1 : 0,
-                marginLeft: isSearchOpen ? 12 : 0,
-              }}
-              transition={{ duration: 0.3 }}
-              onFocus={() => setIsSearchOpen(true)}
-              onBlur={handleSearchBlur}
-              className="h-9 rounded-full border border-white/40 bg-white/10 px-3 text-sm text-white placeholder-white/70 outline-none backdrop-blur"
-              style={{ pointerEvents: isSearchOpen ? "auto" : "none" }}
-            />
           </div>
+
 
           <ProfilePopup />
 

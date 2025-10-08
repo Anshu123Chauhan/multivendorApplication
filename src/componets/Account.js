@@ -16,6 +16,7 @@ import { jwtDecode } from "jwt-decode";
 import { apiurl } from "../config/config";
 import axios from "axios";
 import Swal from "sweetalert2";
+import OrdersList from "./OrdersList";
 const ADDRESS_STORAGE_KEY = "ens_account_addresses";
 
 const emptyAddress = {
@@ -297,7 +298,10 @@ const Account = () => {
       case "orders":
         return (
           <div className="bg-white shadow-sm border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
-            <Package className="mx-auto w-12 h-12 text-amber-400" />
+
+          <OrdersList />
+
+            {/* <Package className="mx-auto w-12 h-12 text-amber-400" />
             <h3 className="mt-4 text-lg font-semibold text-[#2F251F]">You haven&apos;t placed any orders yet.</h3>
             <p className="mt-2 text-sm">
               Explore the latest arrivals and add your favourites to the cart. We&apos;ll take care of the rest!
@@ -307,7 +311,7 @@ const Account = () => {
               onClick={() => navigate("/shop")}
             >
               Browse collections
-            </button>
+            </button> */}
           </div>
         );
 
