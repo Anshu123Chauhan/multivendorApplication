@@ -18,7 +18,7 @@ import { NotificationProvider } from "./reusableComponent/NotificationProvider.j
 import WishList from "./componets/WishList.js";
 import AddressPage from "./componets/AddressPage.js";
 import OrderSummary from "./componets/OrderSummary";
-import PaymentPage from "./componets/PaymentPage.js";
+// import PaymentPage from "./componets/PaymentPage.js";
 // import OrderDetails from "./componets/OrderDetails.js";
 
 function Layout({ children }) {
@@ -66,7 +66,7 @@ function App() {
               <Route path="/wishlist" element={<WishList />} />
               <Route path="/checkout" element={<AddressPage />} />
               <Route path="/order-summary" element={<OrderSummary />} />
-              <Route path="/payment" element={<PaymentPage />} />
+              {/* <Route path="/payment" element={<PaymentPage />} /> */}
               <Route path="*" element={<PageNotFount />} />
             </Routes>
           </Layout>
@@ -98,76 +98,6 @@ export default App;
 
 
 
-
-
-
-
-
-
-
-
-// import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-// import React from "react";
-// import Header from "./componets/Header";
-// import Contact from "./componets/Contact";
-// import Cart from "./componets/Cart";
-// import PageNotFount from "./componets/PageNotFound";
-// import Footer from "./componets/Footer";
-// import Home from "./componets/Home";
-// import Shop from "./componets/Shop";
-// import Login from "./componets/Login";
-// import Account from "./componets/Account";
-// import { ProductDetails } from "./componets/ProductDetails";
-// import Confirmation from './componets/Confirmation.jsx';
-// import SellerRegister from "./componets/SellerRegister.js";
-
-// // ---- Wrapper for layout ----
-// function Layout({ children }) {
-//   const location = useLocyoutation();
-
-//   // routes jahan header/footer nahi chahiye
-//   const hideHeaderFooterRoutes = ["/login", "/account", "/sellerRegister","/shop"];
-
-//   const shouldHide = hideHeaderFooterRoutes.includes(location.pathname);
-
-//   return (
-//     <>
-//       {!shouldHide && <Header />}
-//       {children}
-//       {!shouldHide && <Footer />}
-//     </>
-//   );
-// }
-
-// function App() {
-//   return (
-//     <NotificationProvider>
-//       <CartWishlistProvider>
-//         <Router>
-//           <Layout>
-//             <Routes>
-//               <Route path="/" element={<Home />} />
-//               <Route path="/shop" element={<Shop />} />
-//               <Route path="/contactUs" element={<Contact />} />
-//               <Route path="/sellerRegister" element={<SellerRegister />} />
-//               <Route path="/login" element={<Login />} />
-//               <Route path="/account" element={<Account />} />
-//               <Route path="/product/:id" element={<ProductDetails />} />
-//               <Route path="/confirmation" element={<Confirmation />} />
-//               <Route path="/cart" element={<AddToCart />} />
-//               <Route path="/wishlist" element={<WishList />} />
-//               <Route path="/checkout" element={<AddressPage />} />
-//               <Route path="/order-summary" element={<OrderSummary />} />
-//               <Route path="/payment" element={<PaymentPage />} />
-//               <Route path="*" element={<PageNotFount />} />
-//             </Routes>
-//           </Layout>
-//         </Router>
-//       </CartWishlistProvider>
-//     </NotificationProvider>
-//   );
-// }
-// export default App;
 
 
 
