@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import ProfilePopup from "../reusableComponent/ProfilePopup";
-import MenCollections from "./MenCollections";
+import { useCartWishlist } from "../context/CartWishlistContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -15,6 +15,9 @@ const navLinks = [
 ];
 
 export default function Header({ isShopPage }) {
+  const { cartCount, wishlistCount } = useCartWishlist();
+  const displayCartCount = cartCount > 99 ? "99+" : cartCount;
+  const displayWishlistCount = wishlistCount > 99 ? "99+" : wishlistCount;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -125,18 +128,32 @@ export default function Header({ isShopPage }) {
 
           <Link
             to="/wishlist"
-            className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
-            aria-label="View wishlist"
+            className="relative rounded-full overflow-hidden p-2 text-white transition-colors hover:text-amber-300"
+            aria-label={
+              `View wishlist (${wishlistCount || 0} items)`
+            }
           >
             <Heart className="h-5 w-5" />
+            {wishlistCount > 0 ? (
+              <span className="absolute top-[2px] right-[5px] h-[18px] w-[18px] text-center overflow-hidden rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
+                {displayWishlistCount}
+              </span>
+            ) : null}
           </Link>
 
           <Link
             to="/cart"
-            className="rounded-full p-2 text-white transition-colors hover:text-amber-300"
-            aria-label="View cart"
+            className="relative rounded-full overflow-hidden p-2 text-white transition-colors hover:text-amber-300"
+            aria-label={
+              `View cart (${cartCount || 0} items)`
+            }
           >
             <ShoppingBag className="h-5 w-5" />
+            {cartCount > 0 ? (
+              <span className="absolute top-[2px] right-[5px] h-[18px] w-[18px] text-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold leading-4 text-white">
+                {displayCartCount}
+              </span>
+            ) : null}
           </Link>
 
           <button
@@ -178,3 +195,9 @@ export default function Header({ isShopPage }) {
     </header>
   );
 }
+
+
+
+
+
+

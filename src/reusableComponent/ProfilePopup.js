@@ -59,6 +59,7 @@ export default function ProfilePopup() {
         localStorage.removeItem("user");
         setUser(null);
         setIsOpen(false);
+        window.dispatchEvent(new Event("userLoggedOut"));
         navigate("/login");
     };
 
@@ -293,3 +294,4 @@ export default function ProfilePopup() {
         </div>
     );
 }
+

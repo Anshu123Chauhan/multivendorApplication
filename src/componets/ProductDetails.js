@@ -6,6 +6,7 @@ import SizeChartModal from "./SizeChartModal";
 import { useNavigate } from "react-router-dom";
 import { use } from "react";
 import { apiurl } from "../config/config";
+import { useCartWishlist } from "../context/CartWishlistContext";
 export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -18,6 +19,7 @@ export const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState("");
   
   const navigate = useNavigate();
+  const { refreshCartCount } = useCartWishlist();
 
   const handleAddToCart = async () => {
     try {
@@ -342,6 +344,10 @@ export const ProductDetails = () => {
     </AnimatePage>
   );
 };
+
+
+
+
 
 
 

@@ -6,14 +6,24 @@ import { useNavigate } from "react-router";
 import { useNotification } from "../reusableComponent/NotificationProvider";
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 import { apiurl } from "../config/config";
+import { useCartWishlist } from "../context/CartWishlistContext";
 
 export default function AddToCart() {
   const { showNotification } = useNotification();
+  const { setCartCount } = useCartWishlist();
   const [products, setProducts] = useState([]);
   const [shipping, setShipping] = useState(0);
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
 
+  const computeTotalItems = (list) =>
+    Array.isArray(list)
+      ? list.reduce((sum, item) => sum + (Number(item?.quantity) || 1), 0)
+      : 0;
+
+  const syncCartCount = (list) => {
+    setCartCount(computeTotalItems(list));
+  };
 
   const user = useMemo(() => JSON.parse(localStorage.getItem("user")), []);
 
@@ -51,9 +61,11 @@ export default function AddToCart() {
           },
       });
 
-      setProducts((prev) =>
-        prev.filter((item) => item.productId !== product.productId)
-      );
+      setProducts((prev) => {
+        const updated = prev.filter((item) => item.productId !== product.productId);
+        syncCartCount(updated);
+        return updated;
+      });
 
       showNotification("Item removed successfully!", "success");
     } catch (err) {
@@ -71,8 +83,9 @@ export default function AddToCart() {
       });
 
       showNotification("Cart cleared successfully!", "success");
-      setOpenDialog(false)
+      setOpenDialog(false);
       setProducts([]);
+      syncCartCount([]);
     } catch (error) {
       showNotification("Failed to clear cart.", "error");
     }
@@ -81,7 +94,12 @@ export default function AddToCart() {
   // Fetch cart items on mount
   useEffect(() => {
     const fetchCart = async () => {
-      if (!user?.token) return alert("Please login to view cart!");
+      if (!user?.token) {
+        alert("Please login to view cart!");
+        setProducts([]);
+        syncCartCount([]);
+        return;
+      }
 
       try {
         const response = await axios.get(
@@ -91,9 +109,11 @@ export default function AddToCart() {
 
         const itemsArray = response.data?.cart?.items || [];
         setProducts(itemsArray);
+        syncCartCount(itemsArray);
       } catch (error) {
         console.error("Failed to fetch cart:", error);
         alert("Failed to fetch cart data.");
+        syncCartCount([]);
       }
     };
 
@@ -122,13 +142,15 @@ export default function AddToCart() {
 
   // Local state updates
   const updateQty = (productId, delta) => {
-    setProducts((prev) =>
-      prev.map((p) =>
+    setProducts((prev) => {
+      const updated = prev.map((p) =>
         p.productId === productId
           ? { ...p, quantity: Math.max(1, (p.quantity || 1) + delta) }
           : p
-      )
-    );
+      );
+      syncCartCount(updated);
+      return updated;
+    });
   };
 
   const toggleSaveForLater = (productId) =>
@@ -247,7 +269,7 @@ export default function AddToCart() {
                           size={14}
                           className={p.saved ? "text-pink-600" : "text-gray-400"}
                         />
-                        <span className="text-xs">{p.saved ? "Saved" : "Save"}</span>
+                        <span className="text-xs">{p.saved ? "Saved" : "Move to wishlist"}</span>
                       </button>
 
                       <button
@@ -307,5 +329,23 @@ export default function AddToCart() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
