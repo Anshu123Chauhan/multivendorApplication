@@ -86,7 +86,7 @@ const handleSearch = async () => {
           to="/"
           className="font-nunito text-xl font-bold tracking-wide text-white sm:text-2xl"
         >
-          ENS ENTERPRISES
+          ENS
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-white lg:flex">
