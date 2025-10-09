@@ -228,6 +228,14 @@ export default function AddToCart() {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-medium text-lg">{p.name}</div>
+                      {Array.isArray(p?.variant?.attributes) && p?.variant?.attributes.length > 0 && (
+                      <div className="text-sm text-gray-500 mt-1">
+                        {p?.variant?.attributes
+                          .filter(attr => attr?.type && attr?.value)
+                          .map((attr) => `${attr.value}`)
+                          .join(" | ")}
+                      </div>
+                    )}
                       <div className="text-sm text-gray-600 mt-1">
                         Quantity: {p.quantity}
                       </div>
