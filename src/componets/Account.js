@@ -488,8 +488,8 @@ const Account = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-white py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#faf7f3] px-4 pb-16 pt-6 sm:px-6 lg:px-10 mx-auto w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10 lg:py-6">
+      <div className="w-full mx-auto px-0 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-[260px,1fr] gap-6">
           <aside className="bg-white shadow-sm border border-gray-100 rounded-3xl p-6">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-4">My Account</h2>

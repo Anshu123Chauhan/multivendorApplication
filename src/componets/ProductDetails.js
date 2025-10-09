@@ -137,9 +137,9 @@ export const ProductDetails = () => {
 
   return (
     <AnimatePage>
-      <div className="bg-gray-50 py-6 font-sans">
+      <div className="bg-gray-50 py-6 font-sans ">
         {/* Using the API product data but keeping the UI exactly same */}
-        <div className="w-full px-0 sm:px-24 py-4 flex flex-col sm:flex-row gap-6 justify-center  sm:justify-start items-center">
+        <div className="mx-auto max-w-6xl px-0 sm:px-24 py-4 flex flex-col sm:flex-row gap-6 justify-center  sm:justify-start">
           {/* LEFT IMAGE SECTION */}
         
           {/* Main Image */}
