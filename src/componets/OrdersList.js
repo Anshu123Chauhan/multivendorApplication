@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { apiurl } from "../config/config";
 
-const OrdersList = ({ apiurl }) => {
+const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +58,7 @@ const OrdersList = ({ apiurl }) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       <h2 className="text-xl font-bold mb-4">Orders</h2>
 
       {/* Search & Sort */}
@@ -95,23 +96,30 @@ const OrdersList = ({ apiurl }) => {
         <table className="w-full border-collapse border">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border p-2">Order #</th>
+              <th className="border p-2">Order </th>
+              <th className="border p-2">Total Items </th>
+              <th className="border p-2">Customer Name</th>
               <th className="border p-2">Payment Method</th>
-              <th className="border p-2">Payment Status</th>
+              
+              {/* <th className="border p-2">Payment Status</th> */}
               <th className="border p-2">Order Status</th>
-              <th className="border p-2">Created At</th>
+              <th className="border p-2">Order Date</th>
+              <th className="border p-2">Action</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
               <tr key={order._id}>
                 <td className="border p-2">{order.orderNumber}</td>
+                <td className="border p-2">{order.items.length}</td>
+                <td className="border p-2">{order.shippingAddress.recipientName}</td>
                 <td className="border p-2">{order.paymentMethod}</td>
-                <td className="border p-2">{order.paymentStatus}</td>
+                {/* <td className="border p-2">{order.paymentStatus}</td> */}
                 <td className="border p-2">{order.status}</td>
                 <td className="border p-2">
                   {new Date(order.createdAt).toLocaleString()}
                 </td>
+                 <td className="border p-2"><button>View</button><button>Download</button></td>
               </tr>
             ))}
           </tbody>
