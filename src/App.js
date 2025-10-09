@@ -36,7 +36,7 @@ function Layout({ children }) {
   return (
     <div className="flex flex-col h-screen">
       <Header isShopPage={isShopPage} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 bg-[#faf7f3]">
         {!isHomePage && (
           <aside className="w-[270px] bg-white dark:bg-gray-800 border-r">
             <SideBar />
