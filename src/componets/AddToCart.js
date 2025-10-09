@@ -10,6 +10,7 @@ import { useCartWishlist } from "../context/CartWishlistContext";
 
 export default function AddToCart() {
   const { showNotification } = useNotification();
+  const { setWishlistCount } = useCartWishlist();
   const { setCartCount } = useCartWishlist();
   const [products, setProducts] = useState([]);
   const [shipping, setShipping] = useState(0);
@@ -153,10 +154,28 @@ export default function AddToCart() {
     });
   };
 
-  const toggleSaveForLater = (productId) =>
-    setProducts((prev) =>
-      prev.map((p) => (p.productId === productId ? { ...p, saved: !p.saved } : p))
-    );
+  const toggleSaveForLater = async (p) =>{
+    // setProducts((prev) =>
+    //   prev.map((p) => (p.productId === productId ? { ...p, saved: !p.saved } : p))
+    // );
+     try {
+        const response = await axios.post(
+          `${apiurl}/ecommerce/wishlist/cart-to-wishlist`,p,
+          { headers: { Authorization: user.token } }
+        );
+
+        const itemsArray = response.data?.cart?.items || [];
+        setProducts(itemsArray);
+        syncCartCount(itemsArray);
+        setWishlistCount((prev) => prev + 1);
+        navigate("/wishlist")
+      } catch (error) {
+        console.error("Failed to fetch cart:", error);
+        alert("Failed to fetch cart data.");
+        syncCartCount([]);
+      }
+    }
+
 
   const proceedToCheckout = () => {
     navigate("/checkout")
@@ -270,7 +289,7 @@ export default function AddToCart() {
 
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => toggleSaveForLater(p.productId)}
+                        onClick={() => toggleSaveForLater(p)}
                         className="text-sm px-3 py-1 rounded-md hover:bg-gray-50 flex items-center gap-2"
                       >
                         <Heart
