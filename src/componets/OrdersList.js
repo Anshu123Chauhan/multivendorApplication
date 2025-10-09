@@ -29,10 +29,7 @@ const getStatusStyle = (status = "") => {
 
 const extractOrderTotal = (order) => {
   const candidates = [
-    order?.grandTotal,
-    order?.totalAmount,
-    order?.amount?.total,
-    order?.pricing?.total,
+    order?.total
   ];
 
   for (const candidate of candidates) {
@@ -59,11 +56,7 @@ const formatCurrency = (value = 0) => {
     return "-";
   }
 
-  return numeric.toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  });
+  return value
 };
 
 const formatDate = (value) => {
@@ -204,7 +197,7 @@ const OrdersList = () => {
       const items = Array.isArray(order.items) ? order.items : [];
       const itemRows = items.length
         ? items.map((item, index) => {
-            const qty = Number(item?.quantity) || 1;
+            const qty = Number(item?.qty) || 1;
             const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
               (value) => value !== undefined && value !== null
             );
@@ -241,8 +234,8 @@ const OrdersList = () => {
 
       const tableStartY = cursorY + 28;
       const firstColumnWidth = 32;
-      const quantityColumnWidth = 60;
-      const currencyColumnWidth = 90;
+      const quantityColumnWidth = 90;
+      const currencyColumnWidth = 120;
       const computedItemWidth = contentWidth - (firstColumnWidth + quantityColumnWidth + currencyColumnWidth * 2);
       const itemColumnWidth = Math.max(computedItemWidth, 160);
 
@@ -269,11 +262,11 @@ const OrdersList = () => {
           fillColor: [252, 248, 242],
         },
         columnStyles: {
-          0: { cellWidth: firstColumnWidth, halign: "center" },
-          1: { cellWidth: itemColumnWidth, overflow: "linebreak" },
-          2: { cellWidth: quantityColumnWidth, halign: "center" },
-          3: { cellWidth: currencyColumnWidth, halign: "right" },
-          4: { cellWidth: currencyColumnWidth, halign: "right" },
+          0: { cellWidth: firstColumnWidth, halign: "left" },
+          1: { cellWidth: itemColumnWidth, overflow: "left" },
+          2: { cellWidth: quantityColumnWidth, halign: "left" },
+          3: { cellWidth: currencyColumnWidth, halign: "left" },
+          4: { cellWidth: currencyColumnWidth, halign: "left" },
         },
       });
 
