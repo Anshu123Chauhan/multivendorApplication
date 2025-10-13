@@ -10,6 +10,7 @@ import AnimatePage from "../animation/AnimatePage";
 import { FaHeart, FaRegHeart, FaStar } from "react-icons/fa";
 import axios from "axios";
 import { apiurl } from "../config/config";
+import { useLocation  } from "react-router";
 
 const FALLBACK_IMAGE = "https://via.placeholder.com/600x800.png?text=ENS";
 
@@ -178,6 +179,9 @@ export default function Shop() {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_BATCH);
   const sentinelRef = useRef(null);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const slug = queryParams.get("slug");
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -194,9 +198,16 @@ export default function Shop() {
 
   // Fetch products from API
   const fetchProducts = async () => {
+    let url;
+    if(slug){
+      url=`${apiurl}/ecommerce/product/listing?slug=${slug}`
+    }
+    else{
+      url=`${apiurl}/ecommerce/product/listing`
+    }
     try {
       const response = await axios.post(
-        `${apiurl}/ecommerce/product/listing`,
+        `${url}`,
         {
           // Body can be empty for now or add filters if needed
         }
@@ -210,9 +221,12 @@ export default function Shop() {
     }
   };
 
+
   useEffect(() => {
+   
     fetchProducts();
-  }, []);
+    
+  }, [slug]);
 
   useEffect(() => {
     const fetchWishlistIds = async () => {
