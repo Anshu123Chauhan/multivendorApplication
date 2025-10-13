@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import ProfilePopup from "../reusableComponent/ProfilePopup";
 import { useCartWishlist } from "../context/CartWishlistContext";
+import { apiurl } from "../config/config";
+import axios from "axios";
 
-const navLinks = [
-  { label: "Home", to: "/" },
-  { label: "Men", to: "/shop" },
-  { label: "Women", to: "/shop" },
-  { label: "Kids", to: "/shop" },
-  { label: "Beauty", to: "/shop" },
-  { label: "Electronics", to: "/shop" },
-];
 
 export default function Header({ isShopPage }) {
   const { cartCount, wishlistCount } = useCartWishlist();
@@ -21,16 +15,27 @@ export default function Header({ isShopPage }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [navLinks,setNavkinks]=useState([])
 
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const getCategories=useCallback(async ()=>{
+    try {
+    const response = await axios.get(`${apiurl}/ecommerce/product/categoryListing`);
+        setNavkinks(response.data.data || []);
+    }
+    catch (err) {
+        console.error("Failed to fetch categories:", err);
+      } 
+  },[])
+  useEffect(() => {
+    getCategories();
+  }, [getCategories]);
 
-const navigate = useNavigate();
-const [searchQuery, setSearchQuery] = useState("");
-
-// Function to handle search
-const handleSearch = async () => {
-  if (!searchQuery.trim()) return; // Do nothing if empty
-  navigate("/search", { state: { query: searchQuery } });
-};
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return; 
+    navigate("/search", { state: { query: searchQuery } });
+  };
 
   useEffect(() => {
     if (isShopPage) {
@@ -64,7 +69,7 @@ const handleSearch = async () => {
     }
   }, [isMobileMenuOpen]);
 
-  const mobileLinks = [{ label: "Men", to: "/shop" }, ...navLinks];
+ 
 
   const handleSearchToggle = () => {
     setIsSearchOpen((prev) => !prev);
@@ -91,15 +96,22 @@ const handleSearch = async () => {
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-white lg:flex">
           {/* <MenCollections /> */}
-          {navLinks.map(({ label, to }) => (
+          {navLinks.map(({ name, slug }) => (
             <Link
-              key={label}
-              to={to}
+              key={name}
+              to={`/shop?slug=${slug}`}
               className="uppercase tracking-wide transition hover:text-amber-300"
             >
-              {label}
+              {name}
             </Link>
           ))}
+           <Link
+              key="shop"
+              to={`/shop`}
+              className="uppercase tracking-wide transition hover:text-amber-300"
+            >
+              Shop
+            </Link>
         </nav>
 
         <div className="flex items-center gap-2 text-white sm:gap-3">
@@ -190,14 +202,14 @@ const handleSearch = async () => {
               />
             </div>
 
-            {mobileLinks.map(({ label, to }) => (
+            {navLinks.map(({ name, slug }) => (
               <Link
-                key={`mobile-${label}`}
-                to={to}
+                key={`mobile-${name}`}
+                 to={`/shop?slug=${slug}`}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="uppercase tracking-wide transition hover:text-amber-300"
               >
-                {label}
+                {name}
               </Link>
             ))}
           </div>
