@@ -10,9 +10,9 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { apiurl } from "../config/config";
+import { useNavigate } from "react-router";
 
 const ORDERS_PER_PAGE = 10;
-
 const getStatusStyle = (status = "") => {
   const normalized = status.toLowerCase();
   if (normalized.includes("delivered") || normalized.includes("completed")) {
@@ -82,6 +82,11 @@ const OrdersList = () => {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [order, setOrder] = useState("desc");
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openPopup = () => setIsOpen(true);
+  const closePopup = () => setIsOpen(false);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -197,39 +202,39 @@ const OrdersList = () => {
       const items = Array.isArray(order.items) ? order.items : [];
       const itemRows = items.length
         ? items.map((item, index) => {
-            const qty = Number(item?.qty) || 1;
-            const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
-              (value) => value !== undefined && value !== null
-            );
-            const pricePerUnit = Number(
-              rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
-            );
-            const rawTotal = [item?.total, item?.totalPrice].find(
-              (value) => value !== undefined && value !== null
-            );
-            const lineTotal = Number(
-              rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
-            );
-            const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
-            const attributes = Array.isArray(item?.attributes)
-              ? item.attributes
-                  .map((attr) => {
-                    if (!attr?.type || !attr?.value) return null;
-                    return `${attr.type}: ${attr.value}`;
-                  })
-                  .filter(Boolean)
-              : [];
-            const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
-            const description = variantDetails ? `${name}\n${variantDetails}` : name;
+          const qty = Number(item?.qty) || 1;
+          const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
+            (value) => value !== undefined && value !== null
+          );
+          const pricePerUnit = Number(
+            rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
+          );
+          const rawTotal = [item?.total, item?.totalPrice].find(
+            (value) => value !== undefined && value !== null
+          );
+          const lineTotal = Number(
+            rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
+          );
+          const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
+          const attributes = Array.isArray(item?.attributes)
+            ? item.attributes
+              .map((attr) => {
+                if (!attr?.type || !attr?.value) return null;
+                return `${attr.type}: ${attr.value}`;
+              })
+              .filter(Boolean)
+            : [];
+          const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
+          const description = variantDetails ? `${name}\n${variantDetails}` : name;
 
-            return [
-              String(index + 1),
-              description,
-              String(qty),
-              formatCurrency(pricePerUnit),
-              formatCurrency(lineTotal),
-            ];
-          })
+          return [
+            String(index + 1),
+            description,
+            String(qty),
+            formatCurrency(pricePerUnit),
+            formatCurrency(lineTotal),
+          ];
+        })
         : [["-", "No items available", "-", "-", "-"]];
 
       const tableStartY = cursorY + 28;
@@ -444,10 +449,12 @@ const OrdersList = () => {
                   {orders.map((order) => {
                     const total = extractOrderTotal(order);
                     return (
-                      <tr key={order._id} className="transition hover:bg-amber-50/60">
+                      <tr key={order._id}
+                        className="transition hover:bg-amber-50/60 cursor-pointer "
+                        onClick={() => navigate(`/order/${order._id}`)} >
                         <td className="px-3 py-2">
                           <p className="font-semibold text-[#2F251F] w-[10ch] truncate">{order.orderNumber || "-"}</p>
-                          
+
                         </td>
                         <td className="px-3 py-2 text-[#2F251F]">{order.items?.length || 0}</td>
                         <td className="px-3 py-2">
@@ -463,11 +470,19 @@ const OrdersList = () => {
                         <td className="px-3 py-2 text-[#2F251F]">{formatDate(order.createdAt)}</td>
                         <td className="px-3 py-2">
                           <div className="flex flex-col justify-end gap-2">
-                            <button
+                            {/* <button
                               type="button"
                               className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
                             >
                               <Eye className="h-3.5 w-3.5" /> View
+                            </button> */}
+
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
+                              onClick={openPopup}
+                            >
+                              <Eye className="h-3.5 w-3.5" /> Track
                             </button>
                             <button
                               type="button"
@@ -487,6 +502,22 @@ const OrdersList = () => {
                 </tbody>
               </table>
             </div>
+
+            {isOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                <div className="bg-white rounded-xl p-6 w-80 shadow-lg relative">
+                  <h3 className="text-lg font-semibold mb-4">Track Order</h3>
+                  <p>Here you can display order tracking info...</p>
+
+                  <button
+                    onClick={closePopup}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="grid gap-4 md:hidden">
               {orders.map((order) => {
@@ -524,8 +555,8 @@ const OrdersList = () => {
                         <p className="font-medium">
                           {order.createdAt
                             ? new Date(order.createdAt).toLocaleString("en-IN", {
-                                hour12: true,
-                              })
+                              hour12: true,
+                            })
                             : "-"}
                         </p>
                       </div>

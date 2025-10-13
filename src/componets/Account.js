@@ -17,6 +17,7 @@ import { apiurl } from "../config/config";
 import axios from "axios";
 import Swal from "sweetalert2";
 import OrdersList from "./OrdersList";
+import ProfileUpdate from "./ProfileUpdate";
 const ADDRESS_STORAGE_KEY = "ens_account_addresses";
 
 const emptyAddress = {
@@ -257,8 +258,8 @@ const Account = () => {
     { id: "wishlist", label: "Wishlist", icon: Heart },
     { id: "logout", label: "Logout", icon: LogOut },
   ];
-  let userdetails=jwtDecode(user?.token)
-  
+  let userdetails = jwtDecode(user?.token)
+
   const displayName = userdetails?.name || "there";
   const displayEmail = userdetails?.email || "Update your email for better communication.";
 
@@ -266,40 +267,14 @@ const Account = () => {
     switch (activeTab) {
       case "profile":
         return (
-          <div className="space-y-6">
-            <div className="bg-white shadow-sm border border-gray-100 rounded-2xl p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-amber-50 border border-amber-100">
-                  {avatar ? (
-                    <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-amber-600 text-xl font-semibold">
-                      {(displayName?.[0] || "U").toUpperCase()}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 text-left">
-                  <h2 className="text-2xl font-semibold text-[#2F251F]">Hey, {displayName}</h2>
-                  <p className="text-sm text-gray-500 mt-1">{displayEmail}</p>
-                  <div className="mt-4 text-sm text-gray-600 leading-relaxed">
-                    <p className="text-left">
-                      Save your favourite looks, track orders, and manage delivery addresses all in one place.
-                    </p>
-                    <p className="mt-2 text-left">
-                      Need help? Our customer heroes are available 24/7 to keep your ENS experience incredible.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProfileUpdate />
         );
 
       case "orders":
         return (
           <div className="bg-white shadow-sm border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
 
-          <OrdersList />
+            <OrdersList />
 
             {/* <Package className="mx-auto w-12 h-12 text-amber-400" />
             <h3 className="mt-4 text-lg font-semibold text-[#2F251F]">You haven&apos;t placed any orders yet.</h3>
@@ -334,7 +309,7 @@ const Account = () => {
             {isFormOpen && (
               <form onSubmit={handleAddressSubmit} className="bg-white border border-amber-100 rounded-3xl shadow-sm p-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                 
+
                   <input
                     name="name"
                     value={addressForm.name}
@@ -371,16 +346,16 @@ const Account = () => {
                     className="border border-gray-200 rounded-xl w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                   <input
-                  name="street"
-                  value={addressForm.street}
-                  onChange={handleAddressChange}
-                  placeholder="Street, house number, floor"
-                  rows={3}
-                  className="w-full border border-gray-200 rounded-xl w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
+                    name="street"
+                    value={addressForm.street}
+                    onChange={handleAddressChange}
+                    placeholder="Street, house number, floor"
+                    rows={3}
+                    className="w-full border border-gray-200 rounded-xl w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
                 </div>
-                
-                 <textarea
+
+                <textarea
                   name="address"
                   value={addressForm.address}
                   onChange={handleAddressChange}
@@ -498,9 +473,8 @@ const Account = () => {
                 <button
                   key={id}
                   onClick={() => handleTabClick(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold transition ${
-                    activeTab === id ? "bg-[#2F251F] text-white shadow" : "text-gray-600 hover:bg-amber-50"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold transition ${activeTab === id ? "bg-[#2F251F] text-white shadow" : "text-gray-600 hover:bg-amber-50"
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   {label}
