@@ -88,6 +88,13 @@ const OrdersList = () => {
   const openPopup = () => setIsOpen(true);
   const closePopup = () => setIsOpen(false);
 
+  const trackingDetails = [
+    { status: "Order Placed", date: "2025-10-13T10:19:10.223Z", completed: true },
+    { status: "Shipped", date: "2025-10-14T08:00:00.000Z", completed: true, location: "Noida" },
+    { status: "Out for Delivery", date: "2025-10-15T09:00:00.000Z", completed: false, location: "Gorakhpur" },
+    { status: "Delivered", completed: false },
+  ];
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -144,197 +151,197 @@ const OrdersList = () => {
     };
   }, [orders]);
 
-  const handleDownloadInvoice = (order) => {
-    try {
-      const doc = new jsPDF({ unit: "pt", format: "a4" });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const marginX = 48;
-      const contentWidth = pageWidth - marginX * 2;
-      let cursorY = 72;
+  // const handleDownloadInvoice = (order) => {
+  //   try {
+  //     const doc = new jsPDF({ unit: "pt", format: "a4" });
+  //     const pageWidth = doc.internal.pageSize.getWidth();
+  //     const pageHeight = doc.internal.pageSize.getHeight();
+  //     const marginX = 48;
+  //     const contentWidth = pageWidth - marginX * 2;
+  //     let cursorY = 72;
 
-      const orderNumber = order.orderNumber || order._id || "";
-      const invoiceTitle = orderNumber ? `Invoice #${orderNumber}` : "Invoice";
-      const orderDate = formatDate(order.createdAt);
-      const paymentMethod = order.paymentMethod || "-";
-      const statusLabel = order.status || "Pending";
+  //     const orderNumber = order.orderNumber || order._id || "";
+  //     const invoiceTitle = orderNumber ? `Invoice #${orderNumber}` : "Invoice";
+  //     const orderDate = formatDate(order.createdAt);
+  //     const paymentMethod = order.paymentMethod || "-";
+  //     const statusLabel = order.status || "Pending";
 
-      doc.setFontSize(18);
-      doc.setTextColor(39, 30, 27);
-      doc.text(invoiceTitle, marginX, cursorY);
+  //     doc.setFontSize(18);
+  //     doc.setTextColor(39, 30, 27);
+  //     doc.text(invoiceTitle, marginX, cursorY);
 
-      doc.setFontSize(11);
-      doc.setTextColor(96, 84, 72);
-      cursorY += 20;
-      doc.text(`Placed on: ${orderDate}`, marginX, cursorY);
-      cursorY += 16;
-      doc.text(`Payment method: ${paymentMethod}`, marginX, cursorY);
-      cursorY += 16;
-      doc.text(`Status: ${statusLabel}`, marginX, cursorY);
+  //     doc.setFontSize(11);
+  //     doc.setTextColor(96, 84, 72);
+  //     cursorY += 20;
+  //     doc.text(`Placed on: ${orderDate}`, marginX, cursorY);
+  //     cursorY += 16;
+  //     doc.text(`Payment method: ${paymentMethod}`, marginX, cursorY);
+  //     cursorY += 16;
+  //     doc.text(`Status: ${statusLabel}`, marginX, cursorY);
 
-      const shipping = order.shippingAddress || {};
-      const billingLine1 = shipping.recipientName || "-";
-      const billingLine2 = [shipping.addressLine1, shipping.addressLine2].filter(Boolean).join(", ");
-      const billingLine3 = [shipping.city, shipping.state, shipping.postalCode].filter(Boolean).join(", ");
-      const billingContact = shipping.phone || shipping.email || "";
+  //     const shipping = order.shippingAddress || {};
+  //     const billingLine1 = shipping.recipientName || "-";
+  //     const billingLine2 = [shipping.addressLine1, shipping.addressLine2].filter(Boolean).join(", ");
+  //     const billingLine3 = [shipping.city, shipping.state, shipping.postalCode].filter(Boolean).join(", ");
+  //     const billingContact = shipping.phone || shipping.email || "";
 
-      doc.setFontSize(12);
-      doc.setTextColor(39, 30, 27);
-      cursorY += 32;
-      doc.text("Bill To", marginX, cursorY);
-      doc.setFontSize(11);
-      doc.setTextColor(96, 84, 72);
-      cursorY += 16;
-      doc.text(billingLine1 || "Customer", marginX, cursorY);
-      if (billingLine2) {
-        cursorY += 14;
-        doc.text(billingLine2, marginX, cursorY);
-      }
-      if (billingLine3) {
-        cursorY += 14;
-        doc.text(billingLine3, marginX, cursorY);
-      }
-      if (billingContact) {
-        cursorY += 14;
-        doc.text(billingContact, marginX, cursorY);
-      }
+  //     doc.setFontSize(12);
+  //     doc.setTextColor(39, 30, 27);
+  //     cursorY += 32;
+  //     doc.text("Bill To", marginX, cursorY);
+  //     doc.setFontSize(11);
+  //     doc.setTextColor(96, 84, 72);
+  //     cursorY += 16;
+  //     doc.text(billingLine1 || "Customer", marginX, cursorY);
+  //     if (billingLine2) {
+  //       cursorY += 14;
+  //       doc.text(billingLine2, marginX, cursorY);
+  //     }
+  //     if (billingLine3) {
+  //       cursorY += 14;
+  //       doc.text(billingLine3, marginX, cursorY);
+  //     }
+  //     if (billingContact) {
+  //       cursorY += 14;
+  //       doc.text(billingContact, marginX, cursorY);
+  //     }
 
-      const items = Array.isArray(order.items) ? order.items : [];
-      const itemRows = items.length
-        ? items.map((item, index) => {
-          const qty = Number(item?.qty) || 1;
-          const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
-            (value) => value !== undefined && value !== null
-          );
-          const pricePerUnit = Number(
-            rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
-          );
-          const rawTotal = [item?.total, item?.totalPrice].find(
-            (value) => value !== undefined && value !== null
-          );
-          const lineTotal = Number(
-            rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
-          );
-          const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
-          const attributes = Array.isArray(item?.attributes)
-            ? item.attributes
-              .map((attr) => {
-                if (!attr?.type || !attr?.value) return null;
-                return `${attr.type}: ${attr.value}`;
-              })
-              .filter(Boolean)
-            : [];
-          const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
-          const description = variantDetails ? `${name}\n${variantDetails}` : name;
+  //     const items = Array.isArray(order.items) ? order.items : [];
+  //     const itemRows = items.length
+  //       ? items.map((item, index) => {
+  //         const qty = Number(item?.qty) || 1;
+  //         const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
+  //           (value) => value !== undefined && value !== null
+  //         );
+  //         const pricePerUnit = Number(
+  //           rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
+  //         );
+  //         const rawTotal = [item?.total, item?.totalPrice].find(
+  //           (value) => value !== undefined && value !== null
+  //         );
+  //         const lineTotal = Number(
+  //           rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
+  //         );
+  //         const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
+  //         const attributes = Array.isArray(item?.attributes)
+  //           ? item.attributes
+  //             .map((attr) => {
+  //               if (!attr?.type || !attr?.value) return null;
+  //               return `${attr.type}: ${attr.value}`;
+  //             })
+  //             .filter(Boolean)
+  //           : [];
+  //         const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
+  //         const description = variantDetails ? `${name}\n${variantDetails}` : name;
 
-          return [
-            String(index + 1),
-            description,
-            String(qty),
-            formatCurrency(pricePerUnit),
-            formatCurrency(lineTotal),
-          ];
-        })
-        : [["-", "No items available", "-", "-", "-"]];
+  //         return [
+  //           String(index + 1),
+  //           description,
+  //           String(qty),
+  //           formatCurrency(pricePerUnit),
+  //           formatCurrency(lineTotal),
+  //         ];
+  //       })
+  //       : [["-", "No items available", "-", "-", "-"]];
 
-      const tableStartY = cursorY + 28;
-      const firstColumnWidth = 32;
-      const quantityColumnWidth = 90;
-      const currencyColumnWidth = 120;
-      const computedItemWidth = contentWidth - (firstColumnWidth + quantityColumnWidth + currencyColumnWidth * 2);
-      const itemColumnWidth = Math.max(computedItemWidth, 160);
+  //     const tableStartY = cursorY + 28;
+  //     const firstColumnWidth = 32;
+  //     const quantityColumnWidth = 90;
+  //     const currencyColumnWidth = 120;
+  //     const computedItemWidth = contentWidth - (firstColumnWidth + quantityColumnWidth + currencyColumnWidth * 2);
+  //     const itemColumnWidth = Math.max(computedItemWidth, 160);
 
-      autoTable(doc, {
-        startY: tableStartY,
-        margin: { left: marginX, right: marginX, top: 0, bottom: 32 },
-        tableWidth: contentWidth,
-        head: [["#", "Item", "Qty", "Price", "Total"]],
-        body: itemRows,
-        theme: "striped",
-        styles: {
-          fontSize: 10,
-          cellPadding: { top: 6, right: 6, bottom: 6, left: 6 },
-          textColor: [55, 41, 33],
-          overflow: "linebreak",
-          valign: "middle",
-        },
-        headStyles: {
-          fillColor: [244, 185, 66],
-          textColor: [39, 30, 27],
-          fontStyle: "bold",
-        },
-        alternateRowStyles: {
-          fillColor: [252, 248, 242],
-        },
-        columnStyles: {
-          0: { cellWidth: firstColumnWidth, halign: "left" },
-          1: { cellWidth: itemColumnWidth, overflow: "left" },
-          2: { cellWidth: quantityColumnWidth, halign: "left" },
-          3: { cellWidth: currencyColumnWidth, halign: "left" },
-          4: { cellWidth: currencyColumnWidth, halign: "left" },
-        },
-      });
+  //     autoTable(doc, {
+  //       startY: tableStartY,
+  //       margin: { left: marginX, right: marginX, top: 0, bottom: 32 },
+  //       tableWidth: contentWidth,
+  //       head: [["#", "Item", "Qty", "Price", "Total"]],
+  //       body: itemRows,
+  //       theme: "striped",
+  //       styles: {
+  //         fontSize: 10,
+  //         cellPadding: { top: 6, right: 6, bottom: 6, left: 6 },
+  //         textColor: [55, 41, 33],
+  //         overflow: "linebreak",
+  //         valign: "middle",
+  //       },
+  //       headStyles: {
+  //         fillColor: [244, 185, 66],
+  //         textColor: [39, 30, 27],
+  //         fontStyle: "bold",
+  //       },
+  //       alternateRowStyles: {
+  //         fillColor: [252, 248, 242],
+  //       },
+  //       columnStyles: {
+  //         0: { cellWidth: firstColumnWidth, halign: "left" },
+  //         1: { cellWidth: itemColumnWidth, overflow: "left" },
+  //         2: { cellWidth: quantityColumnWidth, halign: "left" },
+  //         3: { cellWidth: currencyColumnWidth, halign: "left" },
+  //         4: { cellWidth: currencyColumnWidth, halign: "left" },
+  //       },
+  //     });
 
-      const lastTable = doc.lastAutoTable;
-      const totalsStartY = (lastTable?.finalY || tableStartY) + 24;
+  //     const lastTable = doc.lastAutoTable;
+  //     const totalsStartY = (lastTable?.finalY || tableStartY) + 24;
 
-      const subtotal = Number(order.subTotal || order.subtotal || extractOrderTotal(order));
-      const discount = Number(order.discount || order.couponAmount || 0);
-      const shippingFee = Number(order.shippingFee || order.deliveryFee || 0);
-      const taxAmount = Number(order.taxAmount || order.taxes?.total || 0);
-      const grandTotal = extractOrderTotal(order);
+  //     const subtotal = Number(order.subTotal || order.subtotal || extractOrderTotal(order));
+  //     const discount = Number(order.discount || order.couponAmount || 0);
+  //     const shippingFee = Number(order.shippingFee || order.deliveryFee || 0);
+  //     const taxAmount = Number(order.taxAmount || order.taxes?.total || 0);
+  //     const grandTotal = extractOrderTotal(order);
 
-      const summaryRows = [
-        ["Subtotal", formatCurrency(subtotal)],
-        ["Discount", discount ? `- ${formatCurrency(discount)}` : "-"],
-        ["Shipping", shippingFee ? formatCurrency(shippingFee) : "Included"],
-        ["Tax", taxAmount ? formatCurrency(taxAmount) : "Included"],
-        ["Grand Total", formatCurrency(grandTotal)],
-      ];
+  //     const summaryRows = [
+  //       ["Subtotal", formatCurrency(subtotal)],
+  //       ["Discount", discount ? `- ${formatCurrency(discount)}` : "-"],
+  //       ["Shipping", shippingFee ? formatCurrency(shippingFee) : "Included"],
+  //       ["Tax", taxAmount ? formatCurrency(taxAmount) : "Included"],
+  //       ["Grand Total", formatCurrency(grandTotal)],
+  //     ];
 
-      const summaryTableWidth = Math.min(260, contentWidth);
-      const summaryMarginLeft = marginX + contentWidth - summaryTableWidth;
+  //     const summaryTableWidth = Math.min(260, contentWidth);
+  //     const summaryMarginLeft = marginX + contentWidth - summaryTableWidth;
 
-      autoTable(doc, {
-        startY: totalsStartY,
-        margin: { left: summaryMarginLeft, right: marginX, top: 0, bottom: 24 },
-        tableWidth: summaryTableWidth,
-        body: summaryRows,
-        theme: "plain",
-        styles: {
-          fontSize: 11,
-          cellPadding: { top: 4, bottom: 4, left: 6, right: 6 },
-          textColor: [55, 41, 33],
-        },
-        columnStyles: {
-          0: { fontStyle: "bold" },
-          1: { halign: "right" },
-        },
-      });
+  //     autoTable(doc, {
+  //       startY: totalsStartY,
+  //       margin: { left: summaryMarginLeft, right: marginX, top: 0, bottom: 24 },
+  //       tableWidth: summaryTableWidth,
+  //       body: summaryRows,
+  //       theme: "plain",
+  //       styles: {
+  //         fontSize: 11,
+  //         cellPadding: { top: 4, bottom: 4, left: 6, right: 6 },
+  //         textColor: [55, 41, 33],
+  //       },
+  //       columnStyles: {
+  //         0: { fontStyle: "bold" },
+  //         1: { halign: "right" },
+  //       },
+  //     });
 
-      const finalY = doc.lastAutoTable?.finalY || totalsStartY;
-      let thankYouY = finalY + 32;
+  //     const finalY = doc.lastAutoTable?.finalY || totalsStartY;
+  //     let thankYouY = finalY + 32;
 
-      if (thankYouY > pageHeight - marginX) {
-        doc.addPage();
-        thankYouY = marginX;
-      }
+  //     if (thankYouY > pageHeight - marginX) {
+  //       doc.addPage();
+  //       thankYouY = marginX;
+  //     }
 
-      doc.setFontSize(10);
-      doc.setTextColor(120, 104, 90);
-      doc.text(
-        "Thank you for shopping with us. For any assistance, reach out to support.",
-        marginX,
-        thankYouY,
-        { maxWidth: contentWidth }
-      );
+  //     doc.setFontSize(10);
+  //     doc.setTextColor(120, 104, 90);
+  //     doc.text(
+  //       "Thank you for shopping with us. For any assistance, reach out to support.",
+  //       marginX,
+  //       thankYouY,
+  //       { maxWidth: contentWidth }
+  //     );
 
-      const fileName = orderNumber ? `invoice-${orderNumber}.pdf` : "invoice.pdf";
-      doc.save(fileName);
-    } catch (error) {
-      console.error("Failed to generate invoice PDF", error);
-    }
-  };
+  //     const fileName = orderNumber ? `invoice-${orderNumber}.pdf` : "invoice.pdf";
+  //     doc.save(fileName);
+  //   } catch (error) {
+  //     console.error("Failed to generate invoice PDF", error);
+  //   }
+  // };
   const renderSkeleton = () => (
     <div className="grid gap-4 md:grid-cols-2">
       {[...Array(4)].map((_, index) => (
@@ -470,29 +477,15 @@ const OrdersList = () => {
                         <td className="px-3 py-2 text-[#2F251F]">{formatDate(order.createdAt)}</td>
                         <td className="px-3 py-2">
                           <div className="flex flex-col justify-end gap-2">
-                            {/* <button
-                              type="button"
-                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
-                            >
-                              <Eye className="h-3.5 w-3.5" /> View
-                            </button> */}
-
                             <button
                               type="button"
-                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
-                              onClick={openPopup}
+                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50 z-50"
+                              onClick={(e) => {
+                                e.stopPropagation(); 
+                                openPopup();
+                              }}
                             >
                               <Eye className="h-3.5 w-3.5" /> Track
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleDownloadInvoice(order);
-                              }}
-                              className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-1 py-1 justify-center  text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
-                            >
-                              <Download className="h-3.5 w-3.5" /> Invoice
                             </button>
                           </div>
                         </td>
@@ -502,13 +495,55 @@ const OrdersList = () => {
                 </tbody>
               </table>
             </div>
-
             {isOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-                <div className="bg-white rounded-xl p-6 w-80 shadow-lg relative">
-                  <h3 className="text-lg font-semibold mb-4">Track Order</h3>
-                  <p>Here you can display order tracking info...</p>
+                <div
+                  className="bg-white rounded-xl p-4 w-80 shadow-lg relative max-h-[80vh] overflow-y-auto"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  <h3 className="text-md font-semibold mb-3">Track Order</h3>
 
+                  <div className="relative ml-3">
+                    {/* Vertical track line */}
+                    <div className="absolute left-1.5 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+
+                    {/* Progress fill line */}
+                    <div
+                      className="absolute left-1.5 top-0 w-0.5 bg-amber-500 transition-all duration-500"
+                      style={{
+                        height: `${(trackingDetails.filter(step => step.date).length / trackingDetails.length) * 100}%`,
+                      }}
+                    ></div>
+
+                    {trackingDetails?.map((step, index) => {
+                      const completed = !!step.date;
+                      return (
+                        <div key={index} className="flex items-start gap-2 mb-3 relative z-10">
+                          {/* Status circle */}
+                          <div
+                            className={`w-3 h-3 rounded-full mt-1 transition-colors duration-500 ${completed ? "bg-amber-500" : "bg-gray-300"}`}
+                          ></div>
+
+                          {/* Step content */}
+                          <div className="text-sm">
+                            <p className={`font-medium ${completed ? "text-gray-800" : "text-gray-500"}`}>
+                              {step.status}
+                            </p>
+                            {step.date && (
+                              <p className="text-xs text-gray-400">
+                                {new Date(step.date).toLocaleString()}
+                              </p>
+                            )}
+                            {step.location && (
+                              <p className="text-xs text-gray-400">Location: {step.location}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Close Button */}
                   <button
                     onClick={closePopup}
                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 font-bold"
@@ -518,6 +553,7 @@ const OrdersList = () => {
                 </div>
               </div>
             )}
+
 
             <div className="grid gap-4 md:hidden">
               {orders.map((order) => {
@@ -569,7 +605,7 @@ const OrdersList = () => {
                       >
                         <Eye className="h-3.5 w-3.5" /> View details
                       </button>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
@@ -578,7 +614,7 @@ const OrdersList = () => {
                         className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
                       >
                         <Download className="h-3.5 w-3.5" />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 );
