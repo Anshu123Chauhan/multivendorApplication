@@ -426,8 +426,8 @@ export default function Shop() {
           {visibleProducts.map((item) => {
             const productId = (item?._id || item?.id || item?.productId) ? String(item?._id || item?.id || item?.productId) : null;
             const image = getProductImage(item);
-            const price = item?.price.max ?? item?.sellingPrice ?? item?.currentPrice;
-            const mrp = item?.lastPrice ?? item?.mrp ?? item?.originalPrice;
+            const price = item?.sellingPrice ?? item?.currentPrice;
+            const mrp = item?.mrp ?? item?.mrp ?? item?.originalPrice;
             const discount = computeDiscount(price, mrp);
             const isWishlisted = productId ? wishlist.includes(productId) : false;
             const rating = item?.rating ? Number(item.rating).toFixed(1) : null;
