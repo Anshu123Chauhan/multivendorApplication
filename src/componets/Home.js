@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 // Swiper core and required modules
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -218,7 +218,7 @@ export default function HeroPage() {
   const [newProducts, setNewProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [activeTab, setActiveTab] = useState("BESTSELLER");
-
+  const [categories,setCategories]=useState([])
   useEffect(() => {
     let isMounted = true;
 
@@ -307,14 +307,14 @@ export default function HeroPage() {
 
   const products =
     activeTab === "BESTSELLER" ? bestsellerProducts : newProducts;
-  const items = [
-    "https://images.unsplash.com/photo-1610555423081-85ec0b8eabac?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://plus.unsplash.com/premium_photo-1673977134363-c86a9d5dcafa?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1400&auto=format&fit=crop",
-    "https://plus.unsplash.com/premium_photo-1673977134363-c86a9d5dcafa?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://plus.unsplash.com/premium_photo-1690349404224-53f94f20df8f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1714729382668-7bc3bb261662?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  ];
+  // const items = [
+  //   "https://images.unsplash.com/photo-1610555423081-85ec0b8eabac?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  //   "https://plus.unsplash.com/premium_photo-1673977134363-c86a9d5dcafa?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  //   "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1400&auto=format&fit=crop",
+  //   "https://plus.unsplash.com/premium_photo-1673977134363-c86a9d5dcafa?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  //   "https://plus.unsplash.com/premium_photo-1690349404224-53f94f20df8f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  //   "https://images.unsplash.com/photo-1714729382668-7bc3bb261662?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  // ];
 
   const blogs = [
     {
@@ -336,6 +336,19 @@ export default function HeroPage() {
       desc: "If you’ve ever stood in front of your wardrobe on a rainy weekday wondering, “What exactly counts...",
     },
   ];
+
+    const getCategories=useCallback(async ()=>{
+    try {
+    const response = await axios.get(`${apiurl}/ecommerce/product/categoryListing`);
+        setCategories(response.data.data || []);
+    }
+    catch (err) {
+        console.error("Failed to fetch categories:", err);
+      } 
+  },[])
+  useEffect(() => {
+    getCategories();
+  }, [getCategories]);
 
   return (
     <>
@@ -421,9 +434,11 @@ export default function HeroPage() {
 
         {/* View All Button */}
         <div className="flex justify-center mt-2">
+         <Link to="/shop">
           <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
             VIEW ALL
           </button>
+          </Link>
         </div>
       </div>
 
@@ -486,7 +501,7 @@ export default function HeroPage() {
         <div className="max-w-full mx-auto px-10 sm:px-24 text-center">
           {/* Heading */}
           <h2 className="text-2xl md:text-3xl font-bold mb-3 font-nunito">
-            Trendy T-Shirts <span className="font-bold">Starting @ ₹1299</span>
+            Trendy Products <span className="font-bold"> By Categories</span>
           </h2>
           <p className="text-gray-600 text-base md:text-base mb-5">
             Refresh your wardrobe with the latest styles in premium comfort.
@@ -504,23 +519,27 @@ export default function HeroPage() {
               1024: { slidesPerView: 4.2 },
             }}
           >
-            {items.map((src, i) => (
+            {categories.map((item, i) => (
               <SwiperSlide key={i}>
                 <div className="w-full h-[420px] flex-shrink-0">
+                <Link to={`/shop?slug=${item.slug}`}>
                   <img
-                    src={src}
-                    alt={`T-shirt ${i + 1}`}
+                    src={item.image}
+                    alt={item.name}
                     className="w-full h-full object-cover shadow-md hover:scale-105 transition-transform duration-500"
                   />
+                </Link>
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
 
           {/* Button */}
+          <Link to="/shop">
           <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
             BUY NOW
           </button>
+          </Link>
         </div>
       </section>
 
@@ -557,9 +576,11 @@ export default function HeroPage() {
         </div>
 
         {/* Button */}
+         <Link to="/shop">
           <button className="mt-10 bg-[#37312F] text-white px-8 py-3 rounded-md hover:bg-amber-800 transition">
           VIEW ALL
         </button>
+        </Link>
       </div>
     </section>
     </>
