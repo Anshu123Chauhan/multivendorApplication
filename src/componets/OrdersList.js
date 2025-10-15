@@ -88,12 +88,26 @@ const OrdersList = () => {
   const openPopup = () => setIsOpen(true);
   const closePopup = () => setIsOpen(false);
 
-  const trackingDetails = [
-    { status: "Order Placed", date: "2025-10-13T10:19:10.223Z", completed: true },
-    { status: "Shipped", date: "2025-10-14T08:00:00.000Z", completed: true, location: "Noida" },
-    { status: "Out for Delivery", date: "2025-10-15T09:00:00.000Z", completed: false, location: "Gorakhpur" },
-    { status: "Delivered", completed: false },
+  const trackingSteps = [
+    { key: "placed", label: "Order Placed" },
+    { key: "shipped", label: "Shipped" },
+    { key: "out_for_delivery", label: "Out for Delivery" },
+    { key: "delivered", label: "Delivered" },
   ];
+
+  const getTrackingDetails = (order) => {
+    const orderTracking = order?.orderTracking || {};
+
+    return trackingSteps.map((step) => ({
+      ...step,
+      completed: !!orderTracking[step.key], 
+      date: orderTracking[step.key] || null,
+    }));
+  };
+
+  // Inside your component
+  const trackingDetails = getTrackingDetails(order);
+  console.log(trackingDetails)
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -439,114 +453,146 @@ const OrdersList = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="hidden rounded-2xl border border-amber-100 bg-white shadow-sm md:block">
-              <table className="w-full table-fixed">
-                <thead>
-                  <tr className=" text-xs font-semibold uppercase tracking-normal text-gray-500">
-                    <th className="px-3 py-3">Order</th>
-                    <th className="px-3 py-3">Items</th>
-                    <th className="px-3 py-3">Customer</th>
-                    <th className="px-3 py-3">Payment</th>
-                    <th className="px-3 py-3">Status</th>
-                    <th className="px-3 py-3">Placed on</th>
-                    <th className="px-3 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-amber-50 text-sm">
-                  {orders.map((order) => {
-                    const total = extractOrderTotal(order);
-                    return (
-                      <tr key={order._id}
-                        className="transition hover:bg-amber-50/60 cursor-pointer "
-                        onClick={() => navigate(`/order/${order._id}`)} >
-                        <td className="px-3 py-2">
-                          <p className="font-semibold text-[#2F251F] w-[10ch] truncate">{order.orderNumber || "-"}</p>
+            {orders.map((order) => {
+              const item = order.items[0];
+              const product = item?.productId;
 
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]">{order.items?.length || 0}</td>
-                        <td className="px-3 py-2">
-                          <p className="font-medium text-[#2F251F]">{order.shippingAddress?.recipientName || "-"}</p>
-                          <p className="text-xs text-gray-500">{order.shippingAddress?.phone || ""}</p>
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]"><p className="text-xs text-gray-500">{formatCurrency(total)}</p>{order.paymentMethod || "-"}</td>
-                        <td className="px-3 py-2">
-                          <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusStyle(order.status)}`}>
-                            {order.status || "Pending"}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]">{formatDate(order.createdAt)}</td>
-                        <td className="px-3 py-2">
-                          <div className="flex flex-col justify-end gap-2">
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50 z-50"
-                              onClick={(e) => {
-                                e.stopPropagation(); 
-                                openPopup();
-                              }}
-                            >
-                              <Eye className="h-3.5 w-3.5" /> Track
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+              return (
+                <div
+                  key={order._id}
+                  className="flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm hover:shadow-md hover:bg-gray-50 transition cursor-pointer"
+                  onClick={() => navigate(`/order/${order._id}`)}
+                >
+                  {/* Product Image */}
+                  <div className="w-[100px] h-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 border">
+                    <img
+                      src={product?.images?.[0]}
+                      alt={product?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Right Section */}
+                  <div className="flex flex-1 justify-between items-center">
+                    {/* Product Info */}
+                    <div className="flex flex-col justify-between h-full">
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-1 text-left mb-0">
+                        {product?.name || "Product Name"}
+                      </h3>
+                      <p className="text-sm text-gray-500 line-clamp-1">
+                        {product?.description
+                          ? product.description.split(" ").slice(0, 15).join(" ") +
+                          (product.description.split(" ").length > 15 ? "..." : "")
+                          : "No description available"}
+                      </p>
+
+
+                      <div className="flex items-center gap-4 mt-2">
+                        <p className="text-sm font-semibold text-gray-800">
+                          ₹{item?.price?.toLocaleString() || "0"}
+                        </p>
+                        <p className="text-xs text-gray-500">Qty: {item?.qty || 1}</p>
+                        <p className="text-xs text-gray-500 uppercase">
+                          {order.paymentMethod || "COD"}
+                        </p>
+                        <span
+                          className={`text-xs font-semibold mb-3 ${order.status === "delivered"
+                            ? "text-green-700 border-green-200 bg-green-50"
+                            : order.status === "placed"
+                              ? "text-amber-700 border-amber-200 bg-amber-50"
+                              : "text-gray-700 border-gray-200 bg-gray-50"
+                            }`}
+                        >
+                          {order.status}
+                        </span>
+                        <p className="text-xs text-green-400 mt-1">
+                          Ordered on:{" "}
+                          {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+
+
+                    </div>
+
+                    {/* Status & Button */}
+                    {/* <div className="items-end justify-between h-full"> */}
+
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPopup();
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Track
+                    </button>
+                    {/* </div> */}
+                  </div>
+                </div>
+              );
+            })}
+
+
             {isOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-                <div
-                  className="bg-white rounded-xl p-4 w-80 shadow-lg relative max-h-[80vh] overflow-y-auto"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                >
+                <div className="bg-white rounded-xl p-4 w-80 shadow-lg relative max-h-[80vh] overflow-y-auto">
                   <h3 className="text-md font-semibold mb-3">Track Order</h3>
 
-                  <div className="relative ml-3">
-                    {/* Vertical track line */}
-                    <div className="absolute left-1.5 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+                  <div className="relative ml-5">
+                    {/* Vertical Line Background */}
+                    <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
 
-                    {/* Progress fill line */}
+                    {/* Vertical Progress Fill */}
                     <div
-                      className="absolute left-1.5 top-0 w-0.5 bg-amber-500 transition-all duration-500"
+                      className="absolute left-2 top-0 w-0.5 bg-green-500 transition-all duration-500"
                       style={{
-                        height: `${(trackingDetails.filter(step => step.date).length / trackingDetails.length) * 100}%`,
+                        height: `${
+                          // Find last completed step index
+                          ((trackingDetails.findIndex((step) => !step.completed) === -1
+                            ? trackingDetails.length
+                            : trackingDetails.findIndex((step) => !step.completed)) /
+                            trackingDetails.length) *
+                          100
+                          }%`,
                       }}
                     ></div>
 
-                    {trackingDetails?.map((step, index) => {
-                      const completed = !!step.date;
-                      return (
-                        <div key={index} className="flex items-start gap-2 mb-3 relative z-10">
-                          {/* Status circle */}
-                          <div
-                            className={`w-3 h-3 rounded-full mt-1 transition-colors duration-500 ${completed ? "bg-amber-500" : "bg-gray-300"}`}
-                          ></div>
+                    {/* Steps */}
+                    {trackingDetails.map((step, index) => (
+                      <div key={step.key} className="flex items-start gap-2 mb-6 relative z-10">
+                        {/* Step Circle */}
+                        <div
+                          className={`w-4 h-4 rounded-full mt-1 border-2 border-gray-300 transition-colors duration-500 ${step.completed ? "bg-green-500 border-green-500" : "bg-white"
+                            }`}
+                        ></div>
 
-                          {/* Step content */}
-                          <div className="text-sm">
-                            <p className={`font-medium ${completed ? "text-gray-800" : "text-gray-500"}`}>
-                              {step.status}
+                        {/* Step Content */}
+                        <div className="text-sm">
+                          <p
+                            className={`font-medium ${step.completed ? "text-gray-800" : "text-gray-500"
+                              }`}
+                          >
+                            {step.label}
+                          </p>
+                          {step.date && (
+                            <p className="text-xs text-gray-400">
+                              {new Date(step.date).toLocaleString()}
                             </p>
-                            {step.date && (
-                              <p className="text-xs text-gray-400">
-                                {new Date(step.date).toLocaleString()}
-                              </p>
-                            )}
-                            {step.location && (
-                              <p className="text-xs text-gray-400">Location: {step.location}</p>
-                            )}
-                          </div>
+                          )}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
 
                   {/* Close Button */}
                   <button
                     onClick={closePopup}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 font-bold"
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-3xl leading-none"
                   >
                     ×
                   </button>

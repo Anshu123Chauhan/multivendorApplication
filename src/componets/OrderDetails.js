@@ -89,7 +89,7 @@ export default function OrderDetails() {
                     <div className="flex items-center gap-1">
                         <Hash className="w-4 h-4 text-amber-400" />{" "}
                         <span className="font-medium">Order ID:</span>{" "}
-                        {order.orderNumber?.slice(0, 12)}...
+                        {order.orderNumber}
                     </div>
                     <div className="flex items-center gap-1">
                         <CreditCard className="w-4 h-4 text-amber-400" />{" "}
