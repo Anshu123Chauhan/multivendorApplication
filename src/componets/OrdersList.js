@@ -544,15 +544,12 @@ const OrdersList = () => {
                   <h3 className="text-md font-semibold mb-3">Track Order</h3>
 
                   <div className="relative ml-5">
-                    {/* Vertical Line Background */}
                     <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
 
-                    {/* Vertical Progress Fill */}
                     <div
                       className="absolute left-2 top-0 w-0.5 bg-green-500 transition-all duration-500"
                       style={{
                         height: `${
-                          // Find last completed step index
                           ((trackingDetails.findIndex((step) => !step.completed) === -1
                             ? trackingDetails.length
                             : trackingDetails.findIndex((step) => !step.completed)) /
