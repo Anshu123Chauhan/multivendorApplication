@@ -20,8 +20,8 @@ import AddressPage from "./componets/AddressPage.js";
 import OrderSummary from "./componets/OrderSummary";
 import SearchResults from "./componets/SearchReasult.js";
 import OrdersList from "./componets/OrdersList.js";
+import OrderDetails from "./componets/OrderDetails.js";
 // import PaymentPage from "./componets/PaymentPage.js";
-// import OrderDetails from "./componets/OrderDetails.js";
 
 function Layout({ children }) {
   const location = useLocation();
@@ -30,9 +30,15 @@ function Layout({ children }) {
   // const isShopPage = location.pathname === "/shop";
   // const isHomePage = location.pathname === "/";
 
-  const isShopPage = ["/shop", "/login", "/account", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) || location.pathname.startsWith("/product");
-  const isHomePage = ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) || location.pathname.startsWith("/product")
+const isShopPage =
+  ["/shop", "/login", "/account", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) ||
+  location.pathname.startsWith("/product") ||
+  location.pathname.startsWith("/order"); 
 
+const isHomePage =
+  ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) ||
+  location.pathname.startsWith("/product") ||
+  location.pathname.startsWith("/order"); 
   return (
     <div className="flex flex-col h-screen">
       <Header isShopPage={isShopPage} />
@@ -70,6 +76,7 @@ function App() {
               <Route path="/order-summary" element={<OrderSummary />} />
               <Route path="/order-list" element={<OrdersList />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/order/:id" element={<OrderDetails />} />
               {/* <Route path="/payment" element={<PaymentPage />} /> */}
               <Route path="*" element={<PageNotFount />} />
             </Routes>

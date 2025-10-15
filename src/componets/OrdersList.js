@@ -10,9 +10,9 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { apiurl } from "../config/config";
+import { useNavigate } from "react-router";
 
 const ORDERS_PER_PAGE = 10;
-
 const getStatusStyle = (status = "") => {
   const normalized = status.toLowerCase();
   if (normalized.includes("delivered") || normalized.includes("completed")) {
@@ -82,6 +82,32 @@ const OrdersList = () => {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [order, setOrder] = useState("desc");
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openPopup = () => setIsOpen(true);
+  const closePopup = () => setIsOpen(false);
+
+  const trackingSteps = [
+    { key: "placed", label: "Order Placed" },
+    { key: "shipped", label: "Shipped" },
+    { key: "out_for_delivery", label: "Out for Delivery" },
+    { key: "delivered", label: "Delivered" },
+  ];
+
+  const getTrackingDetails = (order) => {
+    const orderTracking = order?.orderTracking || {};
+
+    return trackingSteps.map((step) => ({
+      ...step,
+      completed: !!orderTracking[step.key], 
+      date: orderTracking[step.key] || null,
+    }));
+  };
+
+  // Inside your component
+  const trackingDetails = getTrackingDetails(order);
+  console.log(trackingDetails)
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -139,197 +165,197 @@ const OrdersList = () => {
     };
   }, [orders]);
 
-  const handleDownloadInvoice = (order) => {
-    try {
-      const doc = new jsPDF({ unit: "pt", format: "a4" });
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const marginX = 48;
-      const contentWidth = pageWidth - marginX * 2;
-      let cursorY = 72;
+  // const handleDownloadInvoice = (order) => {
+  //   try {
+  //     const doc = new jsPDF({ unit: "pt", format: "a4" });
+  //     const pageWidth = doc.internal.pageSize.getWidth();
+  //     const pageHeight = doc.internal.pageSize.getHeight();
+  //     const marginX = 48;
+  //     const contentWidth = pageWidth - marginX * 2;
+  //     let cursorY = 72;
 
-      const orderNumber = order.orderNumber || order._id || "";
-      const invoiceTitle = orderNumber ? `Invoice #${orderNumber}` : "Invoice";
-      const orderDate = formatDate(order.createdAt);
-      const paymentMethod = order.paymentMethod || "-";
-      const statusLabel = order.status || "Pending";
+  //     const orderNumber = order.orderNumber || order._id || "";
+  //     const invoiceTitle = orderNumber ? `Invoice #${orderNumber}` : "Invoice";
+  //     const orderDate = formatDate(order.createdAt);
+  //     const paymentMethod = order.paymentMethod || "-";
+  //     const statusLabel = order.status || "Pending";
 
-      doc.setFontSize(18);
-      doc.setTextColor(39, 30, 27);
-      doc.text(invoiceTitle, marginX, cursorY);
+  //     doc.setFontSize(18);
+  //     doc.setTextColor(39, 30, 27);
+  //     doc.text(invoiceTitle, marginX, cursorY);
 
-      doc.setFontSize(11);
-      doc.setTextColor(96, 84, 72);
-      cursorY += 20;
-      doc.text(`Placed on: ${orderDate}`, marginX, cursorY);
-      cursorY += 16;
-      doc.text(`Payment method: ${paymentMethod}`, marginX, cursorY);
-      cursorY += 16;
-      doc.text(`Status: ${statusLabel}`, marginX, cursorY);
+  //     doc.setFontSize(11);
+  //     doc.setTextColor(96, 84, 72);
+  //     cursorY += 20;
+  //     doc.text(`Placed on: ${orderDate}`, marginX, cursorY);
+  //     cursorY += 16;
+  //     doc.text(`Payment method: ${paymentMethod}`, marginX, cursorY);
+  //     cursorY += 16;
+  //     doc.text(`Status: ${statusLabel}`, marginX, cursorY);
 
-      const shipping = order.shippingAddress || {};
-      const billingLine1 = shipping.recipientName || "-";
-      const billingLine2 = [shipping.addressLine1, shipping.addressLine2].filter(Boolean).join(", ");
-      const billingLine3 = [shipping.city, shipping.state, shipping.postalCode].filter(Boolean).join(", ");
-      const billingContact = shipping.phone || shipping.email || "";
+  //     const shipping = order.shippingAddress || {};
+  //     const billingLine1 = shipping.recipientName || "-";
+  //     const billingLine2 = [shipping.addressLine1, shipping.addressLine2].filter(Boolean).join(", ");
+  //     const billingLine3 = [shipping.city, shipping.state, shipping.postalCode].filter(Boolean).join(", ");
+  //     const billingContact = shipping.phone || shipping.email || "";
 
-      doc.setFontSize(12);
-      doc.setTextColor(39, 30, 27);
-      cursorY += 32;
-      doc.text("Bill To", marginX, cursorY);
-      doc.setFontSize(11);
-      doc.setTextColor(96, 84, 72);
-      cursorY += 16;
-      doc.text(billingLine1 || "Customer", marginX, cursorY);
-      if (billingLine2) {
-        cursorY += 14;
-        doc.text(billingLine2, marginX, cursorY);
-      }
-      if (billingLine3) {
-        cursorY += 14;
-        doc.text(billingLine3, marginX, cursorY);
-      }
-      if (billingContact) {
-        cursorY += 14;
-        doc.text(billingContact, marginX, cursorY);
-      }
+  //     doc.setFontSize(12);
+  //     doc.setTextColor(39, 30, 27);
+  //     cursorY += 32;
+  //     doc.text("Bill To", marginX, cursorY);
+  //     doc.setFontSize(11);
+  //     doc.setTextColor(96, 84, 72);
+  //     cursorY += 16;
+  //     doc.text(billingLine1 || "Customer", marginX, cursorY);
+  //     if (billingLine2) {
+  //       cursorY += 14;
+  //       doc.text(billingLine2, marginX, cursorY);
+  //     }
+  //     if (billingLine3) {
+  //       cursorY += 14;
+  //       doc.text(billingLine3, marginX, cursorY);
+  //     }
+  //     if (billingContact) {
+  //       cursorY += 14;
+  //       doc.text(billingContact, marginX, cursorY);
+  //     }
 
-      const items = Array.isArray(order.items) ? order.items : [];
-      const itemRows = items.length
-        ? items.map((item, index) => {
-            const qty = Number(item?.qty) || 1;
-            const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
-              (value) => value !== undefined && value !== null
-            );
-            const pricePerUnit = Number(
-              rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
-            );
-            const rawTotal = [item?.total, item?.totalPrice].find(
-              (value) => value !== undefined && value !== null
-            );
-            const lineTotal = Number(
-              rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
-            );
-            const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
-            const attributes = Array.isArray(item?.attributes)
-              ? item.attributes
-                  .map((attr) => {
-                    if (!attr?.type || !attr?.value) return null;
-                    return `${attr.type}: ${attr.value}`;
-                  })
-                  .filter(Boolean)
-              : [];
-            const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
-            const description = variantDetails ? `${name}\n${variantDetails}` : name;
+  //     const items = Array.isArray(order.items) ? order.items : [];
+  //     const itemRows = items.length
+  //       ? items.map((item, index) => {
+  //         const qty = Number(item?.qty) || 1;
+  //         const rawPrice = [item?.price, item?.unitPrice, item?.amount].find(
+  //           (value) => value !== undefined && value !== null
+  //         );
+  //         const pricePerUnit = Number(
+  //           rawPrice !== undefined && rawPrice !== null ? rawPrice : 0
+  //         );
+  //         const rawTotal = [item?.total, item?.totalPrice].find(
+  //           (value) => value !== undefined && value !== null
+  //         );
+  //         const lineTotal = Number(
+  //           rawTotal !== undefined && rawTotal !== null ? rawTotal : pricePerUnit * qty
+  //         );
+  //         const name = item?.name || item?.productName || item?.title || `Item ${index + 1}`;
+  //         const attributes = Array.isArray(item?.attributes)
+  //           ? item.attributes
+  //             .map((attr) => {
+  //               if (!attr?.type || !attr?.value) return null;
+  //               return `${attr.type}: ${attr.value}`;
+  //             })
+  //             .filter(Boolean)
+  //           : [];
+  //         const variantDetails = [item?.variantName, item?.sku, ...attributes].filter(Boolean).join(" | ");
+  //         const description = variantDetails ? `${name}\n${variantDetails}` : name;
 
-            return [
-              String(index + 1),
-              description,
-              String(qty),
-              formatCurrency(pricePerUnit),
-              formatCurrency(lineTotal),
-            ];
-          })
-        : [["-", "No items available", "-", "-", "-"]];
+  //         return [
+  //           String(index + 1),
+  //           description,
+  //           String(qty),
+  //           formatCurrency(pricePerUnit),
+  //           formatCurrency(lineTotal),
+  //         ];
+  //       })
+  //       : [["-", "No items available", "-", "-", "-"]];
 
-      const tableStartY = cursorY + 28;
-      const firstColumnWidth = 32;
-      const quantityColumnWidth = 90;
-      const currencyColumnWidth = 120;
-      const computedItemWidth = contentWidth - (firstColumnWidth + quantityColumnWidth + currencyColumnWidth * 2);
-      const itemColumnWidth = Math.max(computedItemWidth, 160);
+  //     const tableStartY = cursorY + 28;
+  //     const firstColumnWidth = 32;
+  //     const quantityColumnWidth = 90;
+  //     const currencyColumnWidth = 120;
+  //     const computedItemWidth = contentWidth - (firstColumnWidth + quantityColumnWidth + currencyColumnWidth * 2);
+  //     const itemColumnWidth = Math.max(computedItemWidth, 160);
 
-      autoTable(doc, {
-        startY: tableStartY,
-        margin: { left: marginX, right: marginX, top: 0, bottom: 32 },
-        tableWidth: contentWidth,
-        head: [["#", "Item", "Qty", "Price", "Total"]],
-        body: itemRows,
-        theme: "striped",
-        styles: {
-          fontSize: 10,
-          cellPadding: { top: 6, right: 6, bottom: 6, left: 6 },
-          textColor: [55, 41, 33],
-          overflow: "linebreak",
-          valign: "middle",
-        },
-        headStyles: {
-          fillColor: [244, 185, 66],
-          textColor: [39, 30, 27],
-          fontStyle: "bold",
-        },
-        alternateRowStyles: {
-          fillColor: [252, 248, 242],
-        },
-        columnStyles: {
-          0: { cellWidth: firstColumnWidth, halign: "left" },
-          1: { cellWidth: itemColumnWidth, overflow: "left" },
-          2: { cellWidth: quantityColumnWidth, halign: "left" },
-          3: { cellWidth: currencyColumnWidth, halign: "left" },
-          4: { cellWidth: currencyColumnWidth, halign: "left" },
-        },
-      });
+  //     autoTable(doc, {
+  //       startY: tableStartY,
+  //       margin: { left: marginX, right: marginX, top: 0, bottom: 32 },
+  //       tableWidth: contentWidth,
+  //       head: [["#", "Item", "Qty", "Price", "Total"]],
+  //       body: itemRows,
+  //       theme: "striped",
+  //       styles: {
+  //         fontSize: 10,
+  //         cellPadding: { top: 6, right: 6, bottom: 6, left: 6 },
+  //         textColor: [55, 41, 33],
+  //         overflow: "linebreak",
+  //         valign: "middle",
+  //       },
+  //       headStyles: {
+  //         fillColor: [244, 185, 66],
+  //         textColor: [39, 30, 27],
+  //         fontStyle: "bold",
+  //       },
+  //       alternateRowStyles: {
+  //         fillColor: [252, 248, 242],
+  //       },
+  //       columnStyles: {
+  //         0: { cellWidth: firstColumnWidth, halign: "left" },
+  //         1: { cellWidth: itemColumnWidth, overflow: "left" },
+  //         2: { cellWidth: quantityColumnWidth, halign: "left" },
+  //         3: { cellWidth: currencyColumnWidth, halign: "left" },
+  //         4: { cellWidth: currencyColumnWidth, halign: "left" },
+  //       },
+  //     });
 
-      const lastTable = doc.lastAutoTable;
-      const totalsStartY = (lastTable?.finalY || tableStartY) + 24;
+  //     const lastTable = doc.lastAutoTable;
+  //     const totalsStartY = (lastTable?.finalY || tableStartY) + 24;
 
-      const subtotal = Number(order.subTotal || order.subtotal || extractOrderTotal(order));
-      const discount = Number(order.discount || order.couponAmount || 0);
-      const shippingFee = Number(order.shippingFee || order.deliveryFee || 0);
-      const taxAmount = Number(order.taxAmount || order.taxes?.total || 0);
-      const grandTotal = extractOrderTotal(order);
+  //     const subtotal = Number(order.subTotal || order.subtotal || extractOrderTotal(order));
+  //     const discount = Number(order.discount || order.couponAmount || 0);
+  //     const shippingFee = Number(order.shippingFee || order.deliveryFee || 0);
+  //     const taxAmount = Number(order.taxAmount || order.taxes?.total || 0);
+  //     const grandTotal = extractOrderTotal(order);
 
-      const summaryRows = [
-        ["Subtotal", formatCurrency(subtotal)],
-        ["Discount", discount ? `- ${formatCurrency(discount)}` : "-"],
-        ["Shipping", shippingFee ? formatCurrency(shippingFee) : "Included"],
-        ["Tax", taxAmount ? formatCurrency(taxAmount) : "Included"],
-        ["Grand Total", formatCurrency(grandTotal)],
-      ];
+  //     const summaryRows = [
+  //       ["Subtotal", formatCurrency(subtotal)],
+  //       ["Discount", discount ? `- ${formatCurrency(discount)}` : "-"],
+  //       ["Shipping", shippingFee ? formatCurrency(shippingFee) : "Included"],
+  //       ["Tax", taxAmount ? formatCurrency(taxAmount) : "Included"],
+  //       ["Grand Total", formatCurrency(grandTotal)],
+  //     ];
 
-      const summaryTableWidth = Math.min(260, contentWidth);
-      const summaryMarginLeft = marginX + contentWidth - summaryTableWidth;
+  //     const summaryTableWidth = Math.min(260, contentWidth);
+  //     const summaryMarginLeft = marginX + contentWidth - summaryTableWidth;
 
-      autoTable(doc, {
-        startY: totalsStartY,
-        margin: { left: summaryMarginLeft, right: marginX, top: 0, bottom: 24 },
-        tableWidth: summaryTableWidth,
-        body: summaryRows,
-        theme: "plain",
-        styles: {
-          fontSize: 11,
-          cellPadding: { top: 4, bottom: 4, left: 6, right: 6 },
-          textColor: [55, 41, 33],
-        },
-        columnStyles: {
-          0: { fontStyle: "bold" },
-          1: { halign: "right" },
-        },
-      });
+  //     autoTable(doc, {
+  //       startY: totalsStartY,
+  //       margin: { left: summaryMarginLeft, right: marginX, top: 0, bottom: 24 },
+  //       tableWidth: summaryTableWidth,
+  //       body: summaryRows,
+  //       theme: "plain",
+  //       styles: {
+  //         fontSize: 11,
+  //         cellPadding: { top: 4, bottom: 4, left: 6, right: 6 },
+  //         textColor: [55, 41, 33],
+  //       },
+  //       columnStyles: {
+  //         0: { fontStyle: "bold" },
+  //         1: { halign: "right" },
+  //       },
+  //     });
 
-      const finalY = doc.lastAutoTable?.finalY || totalsStartY;
-      let thankYouY = finalY + 32;
+  //     const finalY = doc.lastAutoTable?.finalY || totalsStartY;
+  //     let thankYouY = finalY + 32;
 
-      if (thankYouY > pageHeight - marginX) {
-        doc.addPage();
-        thankYouY = marginX;
-      }
+  //     if (thankYouY > pageHeight - marginX) {
+  //       doc.addPage();
+  //       thankYouY = marginX;
+  //     }
 
-      doc.setFontSize(10);
-      doc.setTextColor(120, 104, 90);
-      doc.text(
-        "Thank you for shopping with us. For any assistance, reach out to support.",
-        marginX,
-        thankYouY,
-        { maxWidth: contentWidth }
-      );
+  //     doc.setFontSize(10);
+  //     doc.setTextColor(120, 104, 90);
+  //     doc.text(
+  //       "Thank you for shopping with us. For any assistance, reach out to support.",
+  //       marginX,
+  //       thankYouY,
+  //       { maxWidth: contentWidth }
+  //     );
 
-      const fileName = orderNumber ? `invoice-${orderNumber}.pdf` : "invoice.pdf";
-      doc.save(fileName);
-    } catch (error) {
-      console.error("Failed to generate invoice PDF", error);
-    }
-  };
+  //     const fileName = orderNumber ? `invoice-${orderNumber}.pdf` : "invoice.pdf";
+  //     doc.save(fileName);
+  //   } catch (error) {
+  //     console.error("Failed to generate invoice PDF", error);
+  //   }
+  // };
   const renderSkeleton = () => (
     <div className="grid gap-4 md:grid-cols-2">
       {[...Array(4)].map((_, index) => (
@@ -427,66 +453,153 @@ const OrdersList = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="hidden rounded-2xl border border-amber-100 bg-white shadow-sm md:block">
-              <table className="w-full table-fixed">
-                <thead>
-                  <tr className=" text-xs font-semibold uppercase tracking-normal text-gray-500">
-                    <th className="px-3 py-3">Order</th>
-                    <th className="px-3 py-3">Items</th>
-                    <th className="px-3 py-3">Customer</th>
-                    <th className="px-3 py-3">Payment</th>
-                    <th className="px-3 py-3">Status</th>
-                    <th className="px-3 py-3">Placed on</th>
-                    <th className="px-3 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-amber-50 text-sm">
-                  {orders.map((order) => {
-                    const total = extractOrderTotal(order);
-                    return (
-                      <tr key={order._id} className="transition hover:bg-amber-50/60">
-                        <td className="px-3 py-2">
-                          <p className="font-semibold text-[#2F251F] w-[10ch] truncate">{order.orderNumber || "-"}</p>
-                          
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]">{order.items?.length || 0}</td>
-                        <td className="px-3 py-2">
-                          <p className="font-medium text-[#2F251F]">{order.shippingAddress?.recipientName || "-"}</p>
-                          <p className="text-xs text-gray-500">{order.shippingAddress?.phone || ""}</p>
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]"><p className="text-xs text-gray-500">{formatCurrency(total)}</p>{order.paymentMethod || "-"}</td>
-                        <td className="px-3 py-2">
-                          <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusStyle(order.status)}`}>
-                            {order.status || "Pending"}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2 text-[#2F251F]">{formatDate(order.createdAt)}</td>
-                        <td className="px-3 py-2">
-                          <div className="flex flex-col justify-end gap-2">
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-2 rounded-full border border-amber-200 px-1 py-1 justify-center text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
-                            >
-                              <Eye className="h-3.5 w-3.5" /> View
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleDownloadInvoice(order);
-                              }}
-                              className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-1 py-1 justify-center  text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
-                            >
-                              <Download className="h-3.5 w-3.5" /> Invoice
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            {orders.map((order) => {
+              const item = order.items[0];
+              const product = item?.productId;
+
+              return (
+                <div
+                  key={order._id}
+                  className="flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm hover:shadow-md hover:bg-gray-50 transition cursor-pointer"
+                  onClick={() => navigate(`/order/${order._id}`)}
+                >
+                  {/* Product Image */}
+                  <div className="w-[100px] h-[100px] flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 border">
+                    <img
+                      src={product?.images?.[0]}
+                      alt={product?.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Right Section */}
+                  <div className="flex flex-1 justify-between items-center">
+                    {/* Product Info */}
+                    <div className="flex flex-col justify-between h-full">
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-1 text-left mb-0">
+                        {product?.name || "Product Name"}
+                      </h3>
+                      <p className="text-sm text-gray-500 line-clamp-1">
+                        {product?.description
+                          ? product.description.split(" ").slice(0, 15).join(" ") +
+                          (product.description.split(" ").length > 15 ? "..." : "")
+                          : "No description available"}
+                      </p>
+
+
+                      <div className="flex items-center gap-4 mt-2">
+                        <p className="text-sm font-semibold text-gray-800">
+                          ₹{item?.price?.toLocaleString() || "0"}
+                        </p>
+                        <p className="text-xs text-gray-500">Qty: {item?.qty || 1}</p>
+                        <p className="text-xs text-gray-500 uppercase">
+                          {order.paymentMethod || "COD"}
+                        </p>
+                        <span
+                          className={`text-xs font-semibold mb-3 ${order.status === "delivered"
+                            ? "text-green-700 border-green-200 bg-green-50"
+                            : order.status === "placed"
+                              ? "text-amber-700 border-amber-200 bg-amber-50"
+                              : "text-gray-700 border-gray-200 bg-gray-50"
+                            }`}
+                        >
+                          {order.status}
+                        </span>
+                        <p className="text-xs text-green-400 mt-1">
+                          Ordered on:{" "}
+                          {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+
+
+                    </div>
+
+                    {/* Status & Button */}
+                    {/* <div className="items-end justify-between h-full"> */}
+
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPopup();
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full border border-amber-200 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Track
+                    </button>
+                    {/* </div> */}
+                  </div>
+                </div>
+              );
+            })}
+
+
+            {isOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                <div className="bg-white rounded-xl p-4 w-80 shadow-lg relative max-h-[80vh] overflow-y-auto">
+                  <h3 className="text-md font-semibold mb-3">Track Order</h3>
+
+                  <div className="relative ml-5">
+                    {/* Vertical Line Background */}
+                    <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300"></div>
+
+                    {/* Vertical Progress Fill */}
+                    <div
+                      className="absolute left-2 top-0 w-0.5 bg-green-500 transition-all duration-500"
+                      style={{
+                        height: `${
+                          // Find last completed step index
+                          ((trackingDetails.findIndex((step) => !step.completed) === -1
+                            ? trackingDetails.length
+                            : trackingDetails.findIndex((step) => !step.completed)) /
+                            trackingDetails.length) *
+                          100
+                          }%`,
+                      }}
+                    ></div>
+
+                    {/* Steps */}
+                    {trackingDetails.map((step, index) => (
+                      <div key={step.key} className="flex items-start gap-2 mb-6 relative z-10">
+                        {/* Step Circle */}
+                        <div
+                          className={`w-4 h-4 rounded-full mt-1 border-2 border-gray-300 transition-colors duration-500 ${step.completed ? "bg-green-500 border-green-500" : "bg-white"
+                            }`}
+                        ></div>
+
+                        {/* Step Content */}
+                        <div className="text-sm">
+                          <p
+                            className={`font-medium ${step.completed ? "text-gray-800" : "text-gray-500"
+                              }`}
+                          >
+                            {step.label}
+                          </p>
+                          {step.date && (
+                            <p className="text-xs text-gray-400">
+                              {new Date(step.date).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Close Button */}
+                  <button
+                    onClick={closePopup}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-3xl leading-none"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
+
 
             <div className="grid gap-4 md:hidden">
               {orders.map((order) => {
@@ -524,8 +637,8 @@ const OrdersList = () => {
                         <p className="font-medium">
                           {order.createdAt
                             ? new Date(order.createdAt).toLocaleString("en-IN", {
-                                hour12: true,
-                              })
+                              hour12: true,
+                            })
                             : "-"}
                         </p>
                       </div>
@@ -538,7 +651,7 @@ const OrdersList = () => {
                       >
                         <Eye className="h-3.5 w-3.5" /> View details
                       </button>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
@@ -547,7 +660,7 @@ const OrdersList = () => {
                         className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
                       >
                         <Download className="h-3.5 w-3.5" />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 );
