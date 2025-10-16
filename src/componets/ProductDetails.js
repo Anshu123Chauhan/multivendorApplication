@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { use } from "react";
 import { apiurl } from "../config/config";
 import { useCartWishlist } from "../context/CartWishlistContext";
+import { toast } from "react-toastify";
 export const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -25,15 +26,18 @@ export const ProductDetails = () => {
     try {
       // Get user object from localStorage
       const user = JSON.parse(localStorage.getItem("user"));
-      console.log(user, "user data");
+      // console.log(user, "user data");
 
       if (!user?.token) {
-        return alert("Please login to add product to cart!");
+        toast.error("Please login to add product to cart!");
+        navigate("/login");
+        return;
       }
 
       // agar product me variant hai lekin user ne select nahi kiya
       if (product.variants?.length > 0 && !selectedVariant) {
-        return alert("Please select a variant!");
+        toast.error("Please select a variant!");
+        return;
       }
 
       const payload = {
@@ -62,7 +66,7 @@ export const ProductDetails = () => {
       navigate("/cart")
     } catch (error) {
       console.error("Add to cart failed:", error);
-      alert("Failed to add product to cart.");
+      toast.error("Failed to add product to cart.");
     }
   };
 

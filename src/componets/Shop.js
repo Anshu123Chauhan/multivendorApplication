@@ -506,7 +506,7 @@ export default function Shop() {
           })}
         </div>
 
-        <ToastContainer position="top-right" autoClose={1000} />
+        
       </main>
     </AnimatePage>
   );
