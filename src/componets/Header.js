@@ -112,6 +112,13 @@ export default function Header({ isShopPage }) {
             >
               Shop
             </Link>
+            <Link
+              key="seller"
+              to={`/sellerRegister`}
+              className="uppercase tracking-wide transition hover:text-amber-300"
+            >
+              Become a Seller
+            </Link>
         </nav>
 
         <div className="flex items-center gap-2 text-white sm:gap-3">

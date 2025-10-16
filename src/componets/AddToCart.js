@@ -265,7 +265,7 @@ export default function AddToCart() {
                         ₹{(p.price * p.quantity).toFixed(0)}
                       </div>
                       <div className="text-sm line-through text-gray-400">
-                        ₹{p.variant.mrp}
+                        ₹{p.mrp}
                       </div>
                     </div>
                   </div>

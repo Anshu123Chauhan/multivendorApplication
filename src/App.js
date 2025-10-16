@@ -21,8 +21,13 @@ import OrderSummary from "./componets/OrderSummary";
 import SearchResults from "./componets/SearchReasult.js";
 import OrdersList from "./componets/OrdersList.js";
 import OrderDetails from "./componets/OrderDetails.js";
+import PrivacyPolicy from "./componets/PrivacyPolicy.js";
+import TermsConditions from "./componets/TermsConditions.js";
+import ShippingPolicy from "./componets/ShippingPolicy.js";
+import RefundPolicy from "./componets/RefundPolicy.js";
+import AccessibilityStatement from "./componets/AccessibilityStatement.js";
 // import PaymentPage from "./componets/PaymentPage.js";
-
+import { ToastContainer } from "react-toastify";
 function Layout({ children }) {
   const location = useLocation();
 
@@ -31,12 +36,12 @@ function Layout({ children }) {
   // const isHomePage = location.pathname === "/";
 
 const isShopPage =
-  ["/shop", "/login", "/account", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) ||
+  ["/shop", "/login", "/account", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search", "/sellerRegister", "/privacy", "/terms", "/shipping", "/refund", "/accessibility", "/contact"].includes(location.pathname) ||
   location.pathname.startsWith("/product") ||
   location.pathname.startsWith("/order"); 
 
 const isHomePage =
-  ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search"].includes(location.pathname) ||
+  ["/", "/login", "/account", "/shop", "/cart", "/wishlist", "/checkout", "/payment", "/order-summary", "/search", "/sellerRegister", "/privacy", "/terms", "/shipping", "/refund", "/accessibility", "/contact"].includes(location.pathname) ||
   location.pathname.startsWith("/product") ||
   location.pathname.startsWith("/order"); 
   return (
@@ -51,6 +56,7 @@ const isHomePage =
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
       <Footer />
+      <ToastContainer position="top-right" autoClose={1000} />
     </div>
   );
 }
@@ -64,7 +70,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
-              <Route path="/contactUs" element={<Contact />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/sellerRegister" element={<SellerRegister />} />
               <Route path="/login" element={<Login />} />
               <Route path="/account" element={<Account />} />
@@ -77,6 +83,11 @@ function App() {
               <Route path="/order-list" element={<OrdersList />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/order/:id" element={<OrderDetails />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsConditions />} />
+              <Route path="/shipping" element={<ShippingPolicy />} />
+              <Route path="/refund" element={<RefundPolicy />} />
+              <Route path="/accessibility" element={<AccessibilityStatement />} />
               {/* <Route path="/payment" element={<PaymentPage />} /> */}
               <Route path="*" element={<PageNotFount />} />
             </Routes>
