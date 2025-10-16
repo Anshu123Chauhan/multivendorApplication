@@ -18,6 +18,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import OrdersList from "./OrdersList";
 import ProfileUpdate from "./ProfileUpdate";
+import Wishlist from "./WishList"
 const ADDRESS_STORAGE_KEY = "ens_account_addresses";
 
 const emptyAddress = {
@@ -439,14 +440,8 @@ const Account = () => {
         );
 
       case "wishlist":
-        return (
-          <div className="bg-white shadow-sm border border-gray-100 rounded-2xl p-8 text-center text-gray-500">
-            <Heart className="mx-auto w-12 h-12 text-amber-400" />
-            <h3 className="mt-4 text-lg font-semibold text-[#2F251F]">Your wishlist is waiting.</h3>
-            <p className="mt-2 text-sm">
-              Save styles you love and revisit them anytime. Tap the heart icon on products to build your list.
-            </p>
-          </div>
+       return (
+          <Wishlist />
         );
 
       default:
