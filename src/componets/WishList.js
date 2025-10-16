@@ -299,8 +299,8 @@ export default function WishList() {
                   onClick={() => handleViewProduct(item)}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                 />
-                <div className="absolute right-4 top-4 rounded-full bg-white/80 p-2 text-amber-500 shadow">
-                  <Heart className="h-4 w-4" onClick={()=>removeItem(item)}/>
+                <div className="absolute right-4 top-4 rounded-full bg-white/80 p-2 shadow">
+                  <Heart className="h-4 w-4 fill-[#000]" onClick={()=>removeItem(item)}/>
                 </div>
               </div>
 

@@ -748,12 +748,12 @@ export default function AddressPage() {
                     <div className="space-y-1 text-gray-700 text-xs">
                         <div className="flex justify-between">
                             <span>Total MRP</span>
-                            <span>₹1,099</span>
+                            <span>₹{totalPrice}</span>
                         </div>
-                        <div className="flex justify-between text-green-600">
+                        {/* <div className="flex justify-between text-green-600">
                             <span>Discount on MRP</span>
                             <span>-₹616</span>
-                        </div>
+                        </div> */}
                         <div className="flex justify-between">
                             <span>Platform & Event Fee</span>
                             <span className="text-green-600">FREE</span>
@@ -761,7 +761,7 @@ export default function AddressPage() {
                         <hr className="my-1 border-gray-300" />
                         <div className="flex justify-between font-semibold text-sm text-gray-900">
                             <span>Total Amount</span>
-                            <span>₹483</span>
+                            <span>₹{totalPrice}</span>
                         </div>
                     </div>
 
