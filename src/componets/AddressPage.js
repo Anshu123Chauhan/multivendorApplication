@@ -5,10 +5,11 @@ import { CreditCard, Smartphone, Banknote, Wallet, XCircle, CheckCircle } from "
 import ConfirmMassage from "../reusableComponent/ConfirmMassage";
 import { useNavigate } from "react-router";
 import {apiurl} from "../config/config"
+import { useCartWishlist } from "../context/CartWishlistContext";
 
 export default function AddressPage() {
 
-
+    const { setCartCount } = useCartWishlist();
 
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -271,6 +272,7 @@ export default function AddressPage() {
                     },
                 }
             );
+            setCartCount(0)
 
             setShowOrderSuccess(true);
             console.log("Order Response:", response.data);
