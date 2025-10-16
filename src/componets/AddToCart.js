@@ -335,12 +335,13 @@ export default function AddToCart() {
 
             <div className="py-3 flex justify-between">
               <div>GST</div>
-              <div>₹{gst.toFixed(0)}</div>
+              {/* <div>₹{gst.toFixed(0)}</div> */}
+              <div>Not Included</div>
             </div>
 
             <div className="py-3 flex justify-between font-semibold text-lg">
               <div>Total</div>
-              <div>₹{grandTotal.toFixed(0)}</div>
+              <div>₹{subtotal.toFixed(0)}</div>
             </div>
           </div>
 
